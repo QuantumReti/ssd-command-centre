@@ -1,0 +1,81 @@
+{
+    "settings":  {
+                     "executionOrder":  "v1"
+                 },
+    "name":  "SSD - Task Manager",
+    "connections":  {
+                        "Task Logic":  {
+                                           "main":  [
+                                                        {
+                                                            "node":  "Respond to Webhook",
+                                                            "type":  "main",
+                                                            "index":  0
+                                                        }
+                                                    ]
+                                       },
+                        "Webhook":  {
+                                        "main":  [
+                                                     {
+                                                         "node":  "Task Logic",
+                                                         "type":  "main",
+                                                         "index":  0
+                                                     }
+                                                 ]
+                                    }
+                    },
+    "nodes":  [
+                  {
+                      "id":  "node-wh",
+                      "name":  "Webhook",
+                      "parameters":  {
+                                         "path":  "ssd-tasks",
+                                         "responseMode":  "responseNode",
+                                         "httpMethod":  "POST"
+                                     },
+                      "type":  "n8n-nodes-base.webhook",
+                      "position":  [
+                                       240,
+                                       300
+                                   ],
+                      "typeVersion":  2
+                  },
+                  {
+                      "id":  "node-cd",
+                      "name":  "Task Logic",
+                      "parameters":  {
+                                         "mode":  "runOnceForAllItems",
+                                         "jsCode":  "const body = $input.first().json.body;\nconst action = (body.action || \u0027\u0027).toLowerCase().trim();\nconst GH = \u0027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\u0027;\nconst REPO = \u0027QuantumReti/ssd-command-centre\u0027;\nconst FILE = \u0027tasks.json\u0027;\n\nasync function getTasks() {\n  const r = await fetch(\u0027https://api.github.com/repos/\u0027 + REPO + \u0027/contents/\u0027 + FILE, {headers: {Authorization: \u0027Bearer \u0027 + GH, \u0027User-Agent\u0027: \u0027mason-agent\u0027}});\n  if (!r.ok) return {tasks: [], sha: null};\n  const d = await r.json();\n  const content = JSON.parse(atob(d.content.replace(/\\n/g, \u0027\u0027)));\n  return {...content, sha: d.sha};\n}\n\nasync function saveTasks(data, sha) {\n  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));\n  await fetch(\u0027https://api.github.com/repos/\u0027 + REPO + \u0027/contents/\u0027 + FILE, {\n    method: \u0027PUT\u0027,\n    headers: {Authorization: \u0027Bearer \u0027 + GH, \u0027Content-Type\u0027: \u0027application/json\u0027, \u0027User-Agent\u0027: \u0027mason-agent\u0027},\n    body: JSON.stringify({message: \u0027Task: \u0027 + action, content, sha})\n  });\n}\n\nfunction genId() { return \u0027T\u0027 + Date.now().toString(36).toUpperCase(); }\nfunction now() { return new Date().toISOString(); }\n\nconst {tasks, sha} = await getTasks();\nlet reply = \u0027\u0027;\n\nif (action === \u0027add\u0027 || action === \u0027new\u0027 || action === \u0027create\u0027) {\n  const task = {id: genId(), title: body.title || \u0027Untitled\u0027, project: body.project || \u0027\u0027, assigned: body.assigned || \u0027\u0027, status: \u0027todo\u0027, priority: body.priority || \u0027medium\u0027, notes: body.notes || \u0027\u0027, created: now(), updated: now()};\n  tasks.push(task);\n  await saveTasks({tasks, last_updated: now()}, sha);\n  reply = \u0027Task added: [\u0027 + task.id + \u0027] \u0027 + task.title;\n} else if (action === \u0027update\u0027 || action === \u0027status\u0027 || action === \u0027move\u0027) {\n  const idx = tasks.findIndex(t =\u003e t.id === body.id);\n  if (idx \u003e= 0) {\n    if (body.status) tasks[idx].status = body.status;\n    if (body.title) tasks[idx].title = body.title;\n    if (body.assigned) tasks[idx].assigned = body.assigned;\n    if (body.priority) tasks[idx].priority = body.priority;\n    tasks[idx].updated = now();\n    await saveTasks({tasks, last_updated: now()}, sha);\n    reply = \u0027Updated: [\u0027 + body.id + \u0027] \u0027 + (body.status || \u0027updated\u0027);\n  } else { reply = \u0027Not found: \u0027 + body.id; }\n} else if (action === \u0027done\u0027 || action === \u0027complete\u0027) {\n  const idx = tasks.findIndex(t =\u003e t.id === body.id);\n  if (idx \u003e= 0) { tasks[idx].status = \u0027done\u0027; tasks[idx].updated = now(); await saveTasks({tasks, last_updated: now()}, sha); reply = \u0027Done: [\u0027 + body.id + \u0027] \u0027 + tasks[idx].title; }\n  else { reply = \u0027Not found: \u0027 + body.id; }\n} else if (action === \u0027delete\u0027 || action === \u0027remove\u0027) {\n  const idx = tasks.findIndex(t =\u003e t.id === body.id);\n  if (idx \u003e= 0) { const r = tasks.splice(idx, 1)[0]; await saveTasks({tasks, last_updated: now()}, sha); reply = \u0027Removed: \u0027 + r.title; }\n  else { reply = \u0027Not found: \u0027 + body.id; }\n} else if (action === \u0027list\u0027) {\n  const a = tasks.filter(t =\u003e t.status !== \u0027done\u0027);\n  reply = a.length + \u0027 active tasks:\\n\u0027 + a.map(t =\u003e \u0027[\u0027 + t.id + \u0027] \u0027 + t.status.toUpperCase() + \u0027 - \u0027 + t.title + (t.assigned ? \u0027 (\u0027 + t.assigned + \u0027)\u0027 : \u0027\u0027)).join(\u0027\\n\u0027);\n} else if (action === \u0027get\u0027 || action === \u0027\u0027) {\n  return [{json: {tasks, last_updated: new Date().toISOString()}}];\n} else { reply = \u0027Unknown action: \u0027 + action; }\n\nreturn [{json: {success: true, reply, tasks}}];"
+                                     },
+                      "type":  "n8n-nodes-base.code",
+                      "position":  [
+                                       500,
+                                       300
+                                   ],
+                      "typeVersion":  2
+                  },
+                  {
+                      "id":  "node-rs",
+                      "name":  "Respond to Webhook",
+                      "parameters":  {
+                                         "responseBody":  "={{ JSON.stringify($json) }}",
+                                         "respondWith":  "json",
+                                         "options":  {
+                                                         "responseHeaders":  {
+                                                                                 "entries":  [
+                                                                                                 {
+                                                                                                     "value":  "*",
+                                                                                                     "name":  "Access-Control-Allow-Origin"
+                                                                                                 }
+                                                                                             ]
+                                                                             }
+                                                     }
+                                     },
+                      "type":  "n8n-nodes-base.respondToWebhook",
+                      "position":  [
+                                       760,
+                                       300
+                                   ],
+                      "typeVersion":  1
+                  }
+              ]
+}
