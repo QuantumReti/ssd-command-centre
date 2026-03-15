@@ -129,6 +129,26 @@ body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-hei
 .llm-tokens{font:500 12px/1 Inter,sans-serif;color:var(--mu);min-width:80px;text-align:right}
 .llm-cost{font:700 12px/1 Inter,sans-serif;color:var(--gold);min-width:55px;text-align:right}
 
+/* Task board */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kol{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:14px;min-height:120px}
+.kol-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.kol-title{font:700 10px/1 Inter,sans-serif;letter-spacing:2px;text-transform:uppercase}
+.kol-count{font:600 11px/1 Inter,sans-serif;background:rgba(255,255,255,0.08);padding:3px 8px;border-radius:100px;color:var(--mu)}
+.task-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:10px 12px;margin-bottom:8px;transition:all .2s;cursor:default}
+.task-card:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,215,0,0.2)}
+.task-card:last-child{margin-bottom:0}
+.task-id{font:600 9px/1 Inter,sans-serif;color:var(--mu);letter-spacing:1px;margin-bottom:5px}
+.task-title{font:500 12px/1.4 Inter,sans-serif;color:rgba(255,255,255,0.88);margin-bottom:7px}
+.task-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.task-assign{font:400 10px/1 Inter,sans-serif;color:var(--mu);background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:100px}
+.task-project{font:400 10px/1 Inter,sans-serif;color:var(--gold);background:rgba(255,215,0,0.08);padding:2px 7px;border-radius:100px}
+.task-pri{font:600 9px/1 Inter,sans-serif;padding:2px 7px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase}
+.pri-high{background:rgba(255,69,58,0.12);color:var(--rd)}
+.pri-med{background:rgba(255,159,10,0.12);color:var(--am)}
+.pri-low{background:rgba(48,209,88,0.10);color:var(--gr)}
+.empty-col{font:400 12px/1 Inter,sans-serif;color:rgba(255,255,255,0.2);text-align:center;padding:20px 0}
+
 /* Shimmer */
 .shim{background:linear-gradient(90deg,rgba(255,255,255,0.045) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.045) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;margin-bottom:8px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -215,6 +235,24 @@ body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-hei
     </div>
   </div>
 
+  <!-- Projects Board -->
+  <div class="sec-label" style="margin-top:8px">Projects &amp; Tasks</div>
+  <div class="card fw" style="margin-bottom:18px">
+    <div class="card-head">
+      <div class="card-title">Task Board</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="card-badge badge-blue" id="task-total">— tasks</div>
+        <div style="font:400 11px/1 Inter,sans-serif;color:var(--mu)">Message Mason to add/update tasks</div>
+      </div>
+    </div>
+    <div class="kanban" id="kanban">
+      <div class="kol"><div class="kol-head"><div class="kol-title" style="color:var(--mu)">To Do</div><div class="kol-count" id="kc-todo">0</div></div><div id="kc-todo-items"><div class="empty-col">No tasks</div></div></div>
+      <div class="kol"><div class="kol-head"><div class="kol-title" style="color:var(--bl)">In Progress</div><div class="kol-count" id="kc-inprog">0</div></div><div id="kc-inprog-items"><div class="empty-col">No tasks</div></div></div>
+      <div class="kol"><div class="kol-head"><div class="kol-title" style="color:var(--am)">Blocked</div><div class="kol-count" id="kc-blocked">0</div></div><div id="kc-blocked-items"><div class="empty-col">No tasks</div></div></div>
+      <div class="kol"><div class="kol-head"><div class="kol-title" style="color:var(--gr)">Done</div><div class="kol-count" id="kc-done">0</div></div><div id="kc-done-items"><div class="empty-col">No tasks</div></div></div>
+    </div>
+  </div>
+
   <!-- Pipeline + LLM Usage -->
   <div class="main-grid" style="margin-bottom:18px">
     <div class="card">
@@ -239,6 +277,8 @@ body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-hei
 
 <script>
 var DATA = 'https://sunstatedigital.app.n8n.cloud/webhook/ssd-dashboard-data';
+var TASKS_URL = 'https://raw.githubusercontent.com/QuantumReti/ssd-command-centre/main/tasks.json';
+var TASK_API = 'https://sunstatedigital.app.n8n.cloud/webhook/ssd-tasks';
 
 function aud(c,decimals){ return '$'+(c/100).toLocaleString('en-AU',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0}); }
 function fmt(n){ return typeof n === 'number' ? n.toLocaleString() : (n||'—'); }
@@ -349,6 +389,42 @@ function render(d){
   renderLLM(oa);
 }
 
+function renderTasks(data) {
+  var tasks = (data && data.tasks) || [];
+  document.getElementById('task-total').textContent = tasks.length + ' tasks';
+
+  var cols = {
+    todo: tasks.filter(function(t){ return t.status === 'todo'; }),
+    inprogress: tasks.filter(function(t){ return t.status === 'inprogress' || t.status === 'in-progress' || t.status === 'in progress'; }),
+    blocked: tasks.filter(function(t){ return t.status === 'blocked'; }),
+    done: tasks.filter(function(t){ return t.status === 'done'; })
+  };
+
+  document.getElementById('kc-todo').textContent = cols.todo.length;
+  document.getElementById('kc-inprog').textContent = cols.inprogress.length;
+  document.getElementById('kc-blocked').textContent = cols.blocked.length;
+  document.getElementById('kc-done').textContent = cols.done.length;
+
+  function taskCard(t) {
+    var priClass = t.priority === 'high' ? 'pri-high' : t.priority === 'low' ? 'pri-low' : 'pri-med';
+    var priLabel = (t.priority || 'medium').charAt(0).toUpperCase() + (t.priority||'medium').slice(1);
+    return '<div class="task-card">'+
+      '<div class="task-id">'+escHtml(t.id||'')+'</div>'+
+      '<div class="task-title">'+escHtml(t.title||'')+'</div>'+
+      '<div class="task-meta">'+
+        (t.assigned ? '<span class="task-assign">👤 '+escHtml(t.assigned)+'</span>' : '')+
+        (t.project ? '<span class="task-project">'+escHtml(t.project)+'</span>' : '')+
+        '<span class="task-pri '+priClass+'">'+priLabel+'</span>'+
+      '</div>'+
+    '</div>';
+  }
+
+  document.getElementById('kc-todo-items').innerHTML = cols.todo.length ? cols.todo.map(taskCard).join('') : '<div class="empty-col">No tasks</div>';
+  document.getElementById('kc-inprog-items').innerHTML = cols.inprogress.length ? cols.inprogress.map(taskCard).join('') : '<div class="empty-col">No tasks</div>';
+  document.getElementById('kc-blocked-items').innerHTML = cols.blocked.length ? cols.blocked.map(taskCard).join('') : '<div class="empty-col">No tasks</div>';
+  document.getElementById('kc-done-items').innerHTML = cols.done.length ? cols.done.slice(-5).reverse().map(taskCard).join('') : '<div class="empty-col">No tasks</div>';
+}
+
 function renderLLM(oa){
   var html = '';
   if(!oa || oa.note === 'requires api.usage.read scope on OpenAI key') {
@@ -386,8 +462,20 @@ function renderLLM(oa){
 
 function escHtml(t){ var d=document.createElement('div');d.appendChild(document.createTextNode(t||''));return d.innerHTML; }
 
+async function loadTasks() {
+  try {
+    var r = await fetch(TASKS_URL + '?t=' + Date.now());
+    if (r.ok) {
+      var d = await r.json();
+      renderTasks(d);
+    }
+  } catch(e) { console.warn('Tasks load failed', e); }
+}
+
 loadAll();
+loadTasks();
 setInterval(loadAll, 60000);
+setInterval(loadTasks, 30000);
 
 // Clock
 setInterval(function(){
