@@ -6,240 +6,393 @@
 <title>SSD Command Centre</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#080808;--glass:rgba(255,255,255,0.06);--gb:rgba(255,255,255,0.12);--gls:rgba(255,255,255,0.10);--gold:#FFD700;--gm:#C8920A;--gg:linear-gradient(135deg,#FFD700,#C8920A);--mu:rgba(255,255,255,0.45);--wh:#fff;--gr:#34C759;--am:#FF9F0A;--rd:#FF3B30;--bl:#0A84FF}
+:root{
+  --bg:#060608;--glass:rgba(255,255,255,0.055);--gb:rgba(255,255,255,0.11);
+  --gls:rgba(255,255,255,0.08);--gold:#FFD700;--gm:#C8920A;
+  --gg:linear-gradient(135deg,#FFD700 0%,#C8920A 100%);
+  --mu:rgba(255,255,255,0.42);--wh:#fff;
+  --gr:#30D158;--am:#FF9F0A;--rd:#FF453A;--bl:#0A84FF;--pu:#BF5AF2;
+  --card-radius:22px;
+}
 *{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
-.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
-.orb1{width:800px;height:800px;background:radial-gradient(circle,rgba(255,215,0,0.08),transparent 70%);top:-200px;right:-200px;animation:f1 20s ease-in-out infinite alternate}
-.orb2{width:600px;height:600px;background:radial-gradient(circle,rgba(10,132,255,0.06),transparent 70%);bottom:-100px;left:-100px;animation:f2 25s ease-in-out infinite alternate}
-@keyframes f1{from{transform:translate(0,0)}to{transform:translate(-80px,100px)}}
-@keyframes f2{from{transform:translate(0,0)}to{transform:translate(60px,-80px)}}
-.app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:28px 20px 80px}
-.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding:18px 24px;background:var(--glass);backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);border:1px solid var(--gb);border-radius:20px}
-.logo{font-size:18px;font-weight:900;letter-spacing:2px;display:flex;align-items:center;gap:10px}
-.logo-ssd{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.logo-tag{font:400 11px/1 Inter,sans-serif;color:var(--mu);letter-spacing:1.5px;text-transform:uppercase}
-.hdr-right{display:flex;align-items:center;gap:12px}
-.rbtn{background:rgba(255,255,255,0.05);border:1px solid var(--gb);color:var(--gold);font:600 11px/1 Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;padding:9px 16px;border-radius:100px;cursor:pointer;transition:all .2s}
-.rbtn:hover{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4)}
-.lupd{font:400 12px/1 Inter,sans-serif;color:var(--mu)}
 
-/* Hero stats */
-.hg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.sc{background:var(--glass);backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);border:1px solid var(--gb);border-radius:22px;padding:24px 20px;position:relative;overflow:hidden;transition:all .3s}
-.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)}
-.sc:hover{border-color:rgba(255,215,0,0.3);transform:translateY(-2px);box-shadow:0 16px 48px rgba(0,0,0,0.4)}
-.sl{font:500 10px/1 Inter,sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:10px}
-.sv{font:800 34px/1 Inter,sans-serif;color:var(--wh);margin-bottom:5px}
-.sv.gold{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.ss{font:400 11px/1 Inter,sans-serif;color:var(--mu)}
-.si{position:absolute;top:18px;right:18px;font-size:26px;opacity:0.25}
+/* Background */
+.bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-mesh::before{content:'';position:absolute;width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(255,215,0,0.07) 0%,transparent 65%);top:-300px;right:-200px;animation:bgf1 22s ease-in-out infinite alternate}
+.bg-mesh::after{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(10,132,255,0.05) 0%,transparent 65%);bottom:-150px;left:-100px;animation:bgf2 28s ease-in-out infinite alternate}
+@keyframes bgf1{from{transform:translate(0,0) scale(1)}to{transform:translate(-100px,120px) scale(1.1)}}
+@keyframes bgf2{from{transform:translate(0,0) scale(1)}to{transform:translate(80px,-80px) scale(1.08)}}
 
-/* Cards */
-.mg{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
-.card{background:var(--glass);backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);border:1px solid var(--gb);border-radius:22px;padding:24px;position:relative;overflow:hidden;transition:border-color .3s}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)}
-.card:hover{border-color:rgba(255,215,0,0.2)}
-.ct{font:700 10px/1 Inter,sans-serif;letter-spacing:2.5px;text-transform:uppercase;color:var(--mu);margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.ct::before{content:'';width:18px;height:2px;background:var(--gg);border-radius:2px;flex-shrink:0}
+/* App */
+.app{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:24px 20px 100px}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding:16px 24px;background:rgba(255,255,255,0.04);backdrop-filter:blur(48px) saturate(200%);-webkit-backdrop-filter:blur(48px) saturate(200%);border:1px solid var(--gb);border-radius:18px;gap:16px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:36px;height:36px;border-radius:10px;background:var(--gg);display:flex;align-items:center;justify-content:center;font:800 14px/1 Inter,sans-serif;color:#000;letter-spacing:-0.5px;flex-shrink:0}
+.logo-text{font:800 16px/1 Inter,sans-serif;letter-spacing:.5px}
+.logo-text span{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font:400 11px/1 Inter,sans-serif;color:var(--mu);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hdr-time{font:500 12px/1 Inter,sans-serif;color:var(--mu)}
+.rbtn{display:flex;align-items:center;gap:6px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.25);color:var(--gold);font:600 11px/1 Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;padding:9px 16px;border-radius:100px;cursor:pointer;transition:all .2s}
+.rbtn:hover{background:rgba(255,215,0,0.18);border-color:rgba(255,215,0,0.5)}
+.rbtn.spinning .ri{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status-pill{display:flex;align-items:center;gap:6px;background:rgba(48,209,88,0.1);border:1px solid rgba(48,209,88,0.25);border-radius:100px;padding:6px 12px;font:500 11px/1 Inter,sans-serif;color:var(--gr)}
+.status-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gr);box-shadow:0 0 6px var(--gr);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Section label */
+.sec-label{font:600 10px/1 Inter,sans-serif;letter-spacing:3px;text-transform:uppercase;color:var(--mu);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gb),transparent)}
+
+/* Hero grid */
+.hero-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:26px}
+.hcard{background:var(--glass);backdrop-filter:blur(48px) saturate(200%);-webkit-backdrop-filter:blur(48px) saturate(200%);border:1px solid var(--gb);border-radius:var(--card-radius);padding:22px 18px;position:relative;overflow:hidden;transition:all .35s cubic-bezier(.4,0,.2,1);cursor:default}
+.hcard::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent)}
+.hcard:hover{border-color:rgba(255,215,0,0.28);transform:translateY(-3px);box-shadow:0 20px 60px rgba(0,0,0,0.45),0 0 0 1px rgba(255,215,0,0.08)}
+.hcard-icon{font-size:22px;margin-bottom:12px;opacity:.85}
+.hcard-label{font:500 10px/1 Inter,sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:8px}
+.hcard-val{font:800 30px/1 Inter,sans-serif;color:var(--wh);margin-bottom:4px;letter-spacing:-1px}
+.hcard-val.gold{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hcard-val.red{color:var(--rd)}
+.hcard-sub{font:400 11px/1 Inter,sans-serif;color:var(--mu)}
+.hcard-trend{position:absolute;top:16px;right:16px;font:600 11px/1 Inter,sans-serif;padding:3px 8px;border-radius:100px}
+.trend-up{background:rgba(48,209,88,0.12);color:var(--gr)}
+.trend-warn{background:rgba(255,159,10,0.12);color:var(--am)}
+.trend-down{background:rgba(255,69,58,0.12);color:var(--rd)}
+
+/* Main grid */
+.main-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
 .fw{grid-column:1/-1}
 
-/* List items */
-.li{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;margin-bottom:6px;transition:background .2s}
-.li:hover{background:rgba(255,255,255,0.06)}
-.li:last-child{margin-bottom:0}
+/* Glass card */
+.card{background:var(--glass);backdrop-filter:blur(48px) saturate(200%);-webkit-backdrop-filter:blur(48px) saturate(200%);border:1px solid var(--gb);border-radius:var(--card-radius);padding:22px;position:relative;overflow:hidden;transition:border-color .3s}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.14),transparent)}
+.card:hover{border-color:rgba(255,215,0,0.18)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font:700 10px/1 Inter,sans-serif;letter-spacing:2.5px;text-transform:uppercase;color:var(--mu);display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';width:16px;height:2px;background:var(--gg);border-radius:2px;flex-shrink:0}
+.card-badge{font:600 10px/1 Inter,sans-serif;padding:3px 9px;border-radius:100px;letter-spacing:.5px}
+.badge-green{background:rgba(48,209,88,0.12);color:var(--gr)}
+.badge-amber{background:rgba(255,159,10,0.12);color:var(--am)}
+.badge-red{background:rgba(255,69,58,0.12);color:var(--rd)}
+.badge-blue{background:rgba(10,132,255,0.12);color:var(--bl)}
+
+/* List rows */
+.row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.045);border-radius:11px;margin-bottom:6px;transition:background .18s}
+.row:hover{background:rgba(255,255,255,0.055)}
+.row:last-child{margin-bottom:0}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dg{background:var(--gr);box-shadow:0 0 6px var(--gr)}
-.da{background:var(--am);box-shadow:0 0 6px var(--am)}
-.dr{background:var(--rd);box-shadow:0 0 6px var(--rd)}
-.dm{background:rgba(255,255,255,0.2)}
-.ln{flex:1;font:500 12px/1 Inter,sans-serif;color:rgba(255,255,255,0.85)}
-.lm{font:400 11px/1 Inter,sans-serif;color:var(--mu)}
-.badge{font:600 10px/1 Inter,sans-serif;padding:3px 8px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase}
-.bs{background:rgba(52,199,89,0.15);color:var(--gr)}
-.be{background:rgba(255,59,48,0.15);color:var(--rd)}
-.br{background:rgba(10,132,255,0.15);color:var(--bl)}
+.dg{background:var(--gr);box-shadow:0 0 7px var(--gr)}
+.da{background:var(--am);box-shadow:0 0 7px var(--am)}
+.dr{background:var(--rd);box-shadow:0 0 7px var(--rd)}
+.db{background:var(--bl);box-shadow:0 0 7px var(--bl)}
+.dm{background:rgba(255,255,255,0.18)}
+.rn{flex:1;font:500 12px/1.3 Inter,sans-serif;color:rgba(255,255,255,0.82)}
+.rm{font:400 11px/1 Inter,sans-serif;color:var(--mu)}
+.rbadge{font:600 9px/1 Inter,sans-serif;padding:3px 7px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase}
+.rb-g{background:rgba(48,209,88,0.12);color:var(--gr)}
+.rb-e{background:rgba(255,69,58,0.12);color:var(--rd)}
+.rb-r{background:rgba(10,132,255,0.12);color:var(--bl)}
+.rb-a{background:rgba(255,159,10,0.12);color:var(--am)}
 
 /* Payments */
-.pi{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;margin-bottom:6px;transition:background .2s}
-.pi:hover{background:rgba(255,255,255,0.06)}
-.pa{font:700 14px/1 Inter,sans-serif;color:var(--gr);min-width:70px}
-.pd{flex:1;font:400 12px/1.3 Inter,sans-serif;color:rgba(255,255,255,0.7)}
-.pdt{font:400 11px/1 Inter,sans-serif;color:var(--mu)}
-.ps{font:600 9px/1 Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:100px}
-.pss{background:rgba(52,199,89,0.15);color:var(--gr)}
-.psf{background:rgba(255,59,48,0.15);color:var(--rd)}
-.psp{background:rgba(255,159,10,0.15);color:var(--am)}
+.prow{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.045);border-radius:11px;margin-bottom:6px}
+.prow:hover{background:rgba(255,255,255,0.055)}
+.pamt{font:700 13px/1 Inter,sans-serif;color:var(--gr);min-width:68px}
+.pdesc{flex:1;font:400 12px/1.3 Inter,sans-serif;color:rgba(255,255,255,0.72)}
+.pdate{font:400 10px/1 Inter,sans-serif;color:var(--mu);white-space:nowrap}
 
-/* Pipeline */
-.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.pstage{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;text-align:center}
-.pc{font:800 30px/1 Inter,sans-serif;margin-bottom:4px}
-.plb{font:400 10px/1 Inter,sans-serif;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px}
+/* Clients table */
+.ctable{width:100%;border-collapse:collapse}
+.ctable th{font:600 9px/1 Inter,sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--mu);padding:0 10px 10px;text-align:left}
+.ctable td{font:400 12px/1.4 Inter,sans-serif;color:rgba(255,255,255,0.82);padding:8px 10px;border-top:1px solid rgba(255,255,255,0.045)}
+.ctable tr:hover td{background:rgba(255,255,255,0.025)}
+.mrr-tag{font:600 12px/1 Inter,sans-serif;color:var(--gr)}
+
+/* Pipeline stages */
+.pipe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.pstage{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.055);border-radius:14px;padding:14px;text-align:center}
+.pval{font:800 28px/1 Inter,sans-serif;margin-bottom:4px;letter-spacing:-1px}
+.plbl{font:400 10px/1 Inter,sans-serif;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px}
+
+/* LLM section */
+.llm-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.045);border-radius:12px;margin-bottom:8px}
+.llm-model{font:600 13px/1 Inter,sans-serif;color:var(--wh);min-width:120px}
+.llm-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden}
+.llm-bar{height:100%;border-radius:6px;background:var(--gg);transition:width .8s ease}
+.llm-tokens{font:500 12px/1 Inter,sans-serif;color:var(--mu);min-width:80px;text-align:right}
+.llm-cost{font:700 12px/1 Inter,sans-serif;color:var(--gold);min-width:55px;text-align:right}
 
 /* Shimmer */
-.shim{background:linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.05) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:13px;margin-bottom:7px}
+.shim{background:linear-gradient(90deg,rgba(255,255,255,0.045) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.045) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;margin-bottom:8px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.err{background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.18);border-radius:10px;padding:10px 14px;font:400 12px/1.4 Inter,sans-serif;color:rgba(255,120,100,.9);margin-top:8px}
-.empty{color:var(--mu);font-size:12px;text-align:center;padding:16px}
+.empty{color:var(--mu);font-size:12px;text-align:center;padding:20px 0}
+.err-box{background:rgba(255,69,58,0.07);border:1px solid rgba(255,69,58,0.18);border-radius:10px;padding:10px 14px;font:400 12px/1.5 Inter,sans-serif;color:rgba(255,120,110,.9);margin-top:6px}
+.info-box{background:rgba(255,159,10,0.07);border:1px solid rgba(255,159,10,0.2);border-radius:10px;padding:10px 14px;font:400 12px/1.5 Inter,sans-serif;color:rgba(255,180,80,.9);margin-top:6px}
+.info-box a{color:var(--am);font-weight:700}
 
-/* Activate banner */
-.activate-banner{background:rgba(255,159,10,0.1);border:1px solid rgba(255,159,10,0.3);border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
-.activate-banner a{color:var(--am);font-weight:700;text-decoration:underline}
-.activate-banner span{font:400 13px/1.5 Inter,sans-serif;color:rgba(255,255,255,0.8)}
+/* Activate warning */
+.act-warn{background:rgba(255,159,10,0.08);border:1px solid rgba(255,159,10,0.25);border-radius:14px;padding:14px 20px;margin-bottom:22px;font:400 13px/1.5 Inter,sans-serif;color:rgba(255,255,255,0.8);display:none}
+.act-warn a{color:var(--am);font-weight:700;text-decoration:underline}
 
-@media(max-width:900px){.hg{grid-template-columns:repeat(2,1fr)}.mg{grid-template-columns:1fr}.pg{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:500px){.hg{grid-template-columns:1fr}.sv{font-size:26px}}
+/* Responsive */
+@media(max-width:1100px){.hero-grid{grid-template-columns:repeat(3,1fr)}.main-grid{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.hero-grid{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr}.hcard-val{font-size:24px}.pipe-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:420px){.hero-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-
+<div class="bg-mesh"></div>
 <div class="app">
 
+  <!-- Header -->
   <div class="hdr">
     <div class="logo">
-      <span class="logo-ssd">SUN STATE</span><span style="font-weight:400;color:rgba(255,255,255,0.5)">digital</span>
-      <span class="logo-tag">Command Centre</span>
+      <div class="logo-mark">SSD</div>
+      <div>
+        <div class="logo-text"><span>SUN STATE</span> digital</div>
+        <div class="logo-sub">Command Centre</div>
+      </div>
     </div>
     <div class="hdr-right">
-      <span class="lupd" id="lupd">Loading...</span>
-      <button class="rbtn" onclick="loadAll()">⟳ Refresh</button>
+      <div class="status-pill" id="status-pill">Live</div>
+      <span class="hdr-time" id="hdr-time">—</span>
+      <button class="rbtn" onclick="loadAll()" id="rbtn"><span class="ri">⟳</span> Refresh</button>
     </div>
   </div>
 
-  <div class="activate-banner" id="activate-banner" style="display:none">
-    <span>⚠️ <strong>One-time setup required:</strong> The data API workflow needs to be activated. <a href="https://sunstatedigital.app.n8n.cloud/workflow/VukGFM2d3XS4c9uq" target="_blank">Click here to activate it</a> — toggle the switch top-right in n8n, then refresh this page.</span>
+  <!-- Activation warning -->
+  <div class="act-warn" id="act-warn">
+    ⚠️ <strong>Setup required:</strong> Activate the data workflow at <a href="https://sunstatedigital.app.n8n.cloud/workflow/VukGFM2d3XS4c9uq" target="_blank">n8n → SSD Command Centre Data API</a> — toggle the switch top-right, then refresh.
   </div>
 
   <!-- Hero Stats -->
-  <div class="hg">
-    <div class="sc"><div class="si">💰</div><div class="sl">Monthly Recurring Revenue</div><div class="sv gold" id="s-mrr">—</div><div class="ss" id="s-mrr-s">Loading...</div></div>
-    <div class="sc"><div class="si">📋</div><div class="sl">Active Subscriptions</div><div class="sv" id="s-subs">—</div><div class="ss" id="s-subs-s">Loading...</div></div>
-    <div class="sc"><div class="si">👥</div><div class="sl">CRM Contacts</div><div class="sv" id="s-contacts">—</div><div class="ss" id="s-contacts-s">Loading...</div></div>
-    <div class="sc"><div class="si">⚡</div><div class="sl">Active Automations</div><div class="sv" id="s-auto">—</div><div class="ss" id="s-auto-s">Loading...</div></div>
+  <div class="sec-label">Overview</div>
+  <div class="hero-grid" id="hero-grid">
+    <div class="hcard"><div class="hcard-icon">💰</div><div class="hcard-label">Monthly Recurring Revenue</div><div class="hcard-val gold" id="h-mrr">—</div><div class="hcard-sub" id="h-mrr-s">Loading...</div></div>
+    <div class="hcard"><div class="hcard-icon">📈</div><div class="hcard-label">Revenue This Month</div><div class="hcard-val" id="h-rev">—</div><div class="hcard-sub" id="h-rev-s">Loading...</div></div>
+    <div class="hcard"><div class="hcard-icon">📋</div><div class="hcard-label">Active Subscriptions</div><div class="hcard-val" id="h-subs">—</div><div class="hcard-sub" id="h-subs-s">Loading...</div></div>
+    <div class="hcard"><div class="hcard-icon">👥</div><div class="hcard-label">CRM Contacts</div><div class="hcard-val" id="h-contacts">—</div><div class="hcard-sub" id="h-contacts-s">Loading...</div></div>
+    <div class="hcard"><div class="hcard-icon">⚡</div><div class="hcard-label">Active Automations</div><div class="hcard-val" id="h-auto">—</div><div class="hcard-sub" id="h-auto-s">Loading...</div></div>
   </div>
 
-  <!-- Main grid -->
-  <div class="mg">
-
+  <!-- Revenue + Clients -->
+  <div class="main-grid" style="margin-bottom:18px">
     <div class="card">
-      <div class="ct">Workflows</div>
-      <div id="wf-list"><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div></div>
-    </div>
-
-    <div class="card">
-      <div class="ct">Recent Executions</div>
-      <div id="ex-list"><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div></div>
-    </div>
-
-    <div class="card">
-      <div class="ct">Recent Payments</div>
-      <div id="pay-list"><div class="shim"></div><div class="shim"></div><div class="shim"></div></div>
-    </div>
-
-    <div class="card">
-      <div class="ct">Pipeline — Opportunities</div>
-      <div class="pg">
-        <div class="pstage"><div class="pc" style="color:var(--bl)" id="p-open">—</div><div class="plb">Open</div></div>
-        <div class="pstage"><div class="pc" style="color:var(--gr)" id="p-won">—</div><div class="plb">Won</div></div>
-        <div class="pstage"><div class="pc" style="color:var(--rd)" id="p-lost">—</div><div class="plb">Lost</div></div>
+      <div class="card-head">
+        <div class="card-title">Active Clients &amp; MRR</div>
+        <div class="card-badge badge-green" id="clients-count">—</div>
       </div>
-      <div id="p-total" style="font:400 12px/1 Inter,sans-serif;color:var(--mu);text-align:center"></div>
+      <table class="ctable">
+        <thead><tr><th>Client</th><th>MRR</th><th>Status</th><th>Next Bill</th></tr></thead>
+        <tbody id="clients-tbody"><tr><td colspan="4"><div class="shim" style="height:12px;margin:6px 0"></div></td></tr></tbody>
+      </table>
     </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Recent Payments</div><div class="card-badge badge-green" id="pay-month">—</div></div>
+      <div id="pay-list"><div class="shim" style="height:40px"></div><div class="shim" style="height:40px"></div><div class="shim" style="height:40px"></div></div>
+    </div>
+  </div>
 
+  <!-- Automations + Executions -->
+  <div class="main-grid" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Workflows</div>
+        <div style="display:flex;gap:8px"><div class="card-badge badge-green" id="wf-active-count">—</div><div class="card-badge" style="background:rgba(255,255,255,0.06);color:var(--mu)" id="wf-total-count">—</div></div>
+      </div>
+      <div id="wf-list"><div class="shim" style="height:36px"></div><div class="shim" style="height:36px"></div><div class="shim" style="height:36px"></div><div class="shim" style="height:36px"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Recent Executions</div></div>
+      <div id="ex-list"><div class="shim" style="height:36px"></div><div class="shim" style="height:36px"></div><div class="shim" style="height:36px"></div><div class="shim" style="height:36px"></div></div>
+    </div>
+  </div>
+
+  <!-- Pipeline + LLM Usage -->
+  <div class="main-grid" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-head"><div class="card-title">GHL Pipeline</div><div class="card-badge badge-blue" id="pipe-value">—</div></div>
+      <div class="pipe-grid">
+        <div class="pstage"><div class="pval" style="color:var(--bl)" id="p-open">—</div><div class="plbl">Open</div></div>
+        <div class="pstage"><div class="pval" style="color:var(--gr)" id="p-won">—</div><div class="plbl">Won</div></div>
+        <div class="pstage"><div class="pval" style="color:var(--rd)" id="p-lost">—</div><div class="plbl">Lost</div></div>
+      </div>
+      <div id="pipe-note" style="font:400 11px/1 Inter,sans-serif;color:var(--mu);text-align:center"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">AI / LLM Usage</div><div class="card-badge badge-blue" id="llm-badge">This Month</div></div>
+      <div id="llm-section">
+        <div class="shim" style="height:44px"></div>
+        <div class="shim" style="height:44px"></div>
+      </div>
+    </div>
   </div>
 
 </div>
 
 <script>
-var DATA_URL = 'https://sunstatedigital.app.n8n.cloud/webhook/ssd-dashboard-data';
+var DATA = 'https://sunstatedigital.app.n8n.cloud/webhook/ssd-dashboard-data';
 
-function aud(c){ return '$'+(c/100).toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0}); }
-function fdate(ts){ return new Date(ts*1000).toLocaleDateString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
-function ago(iso){
-  if(!iso) return '';
-  var s = Math.floor((Date.now() - new Date(iso).getTime())/1000);
-  if(s<60) return s+'s ago';
-  if(s<3600) return Math.floor(s/60)+'m ago';
-  if(s<86400) return Math.floor(s/3600)+'h ago';
-  return Math.floor(s/86400)+'d ago';
-}
+function aud(c,decimals){ return '$'+(c/100).toLocaleString('en-AU',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0}); }
+function fmt(n){ return typeof n === 'number' ? n.toLocaleString() : (n||'—'); }
+function fdate(ts){ if(!ts) return ''; return new Date(ts*1000).toLocaleDateString('en-AU',{day:'numeric',month:'short'}); }
+function ftime(ts){ if(!ts) return ''; return new Date(ts*1000).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}); }
+function ago(iso){ if(!iso) return ''; var s=Math.floor((Date.now()-new Date(iso).getTime())/1000); if(s<60) return s+'s'; if(s<3600) return Math.floor(s/60)+'m'; if(s<86400) return Math.floor(s/3600)+'h'; return Math.floor(s/86400)+'d'; }
+function nextBill(ts){ if(!ts) return '—'; var d=new Date(ts*1000); return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}); }
 
-function shims(n){ var h=''; for(var i=0;i<n;i++) h+='<div class="shim"></div>'; return h; }
+function shims(n,h){ var r=''; h=h||36; for(var i=0;i<n;i++) r+='<div class="shim" style="height:'+h+'px;margin-bottom:8px"></div>'; return r; }
 
 async function loadAll(){
-  document.getElementById('lupd').textContent = 'Refreshing...';
+  var btn = document.getElementById('rbtn');
+  btn.classList.add('spinning');
+  document.getElementById('status-pill').style.background='rgba(255,159,10,0.1)';
+  document.getElementById('status-pill').style.borderColor='rgba(255,159,10,0.25)';
+  document.getElementById('status-pill').style.color='var(--am)';
+  document.getElementById('status-pill').textContent='Syncing...';
 
   try {
-    var res = await fetch(DATA_URL);
+    var res = await fetch(DATA);
     if(!res.ok) throw new Error('HTTP '+res.status);
     var d = await res.json();
-
-    // MRR
-    document.getElementById('s-mrr').textContent = aud(d.stripe.mrr);
-    document.getElementById('s-mrr-s').textContent = 'from '+d.stripe.active_subscriptions+' subscriptions';
-
-    // Subs
-    document.getElementById('s-subs').textContent = d.stripe.active_subscriptions;
-    document.getElementById('s-subs-s').textContent = 'active recurring';
-
-    // Contacts
-    var tc = d.ghl.total_contacts;
-    document.getElementById('s-contacts').textContent = typeof tc === 'number' ? tc.toLocaleString() : tc || '—';
-    document.getElementById('s-contacts-s').textContent = 'in GHL CRM';
-
-    // Automations
-    document.getElementById('s-auto').textContent = d.n8n.active_workflows;
-    document.getElementById('s-auto-s').textContent = d.n8n.total_workflows+' total workflows';
-
-    // Workflows
-    var wfHtml = (d.n8n.workflows||[]).slice(0,14).map(function(w){
-      var dot = w.active ? 'dg' : 'dm';
-      return '<div class="li"><div class="dot '+dot+'"></div><div class="ln">'+w.name+'</div><div class="lm">'+(w.active?'Active':'Inactive')+'</div></div>';
-    }).join('') || '<div class="empty">No workflows</div>';
-    document.getElementById('wf-list').innerHTML = wfHtml;
-
-    // Executions
-    var exHtml = (d.n8n.executions||[]).slice(0,12).map(function(e){
-      var st = (e.status||'').toLowerCase();
-      var dot = st==='success'?'dg':st==='error'?'dr':'da';
-      var badge = st==='success'?'bs':st==='error'?'be':'br';
-      var label = st==='success'?'OK':st==='error'?'Error':'Running';
-      return '<div class="li"><div class="dot '+dot+'"></div><div class="ln">'+(e.workflowName||'Workflow')+'</div><div class="lm">'+ago(e.startedAt)+'</div><div class="badge '+badge+'">'+label+'</div></div>';
-    }).join('') || '<div class="empty">No executions</div>';
-    document.getElementById('ex-list').innerHTML = exHtml;
-
-    // Payments
-    var payHtml = (d.stripe.payments||[]).slice(0,10).map(function(p){
-      var sc = p.status==='succeeded'?'pss':p.status==='failed'?'psf':'psp';
-      return '<div class="pi"><div class="pa">'+aud(p.amount)+'</div><div class="pd">'+(p.description||'Payment')+'</div><div class="pdt">'+fdate(p.date)+'</div><div class="ps '+sc+'">'+p.status+'</div></div>';
-    }).join('') || '<div class="empty">No payments</div>';
-    document.getElementById('pay-list').innerHTML = payHtml;
-
-    // Pipeline
-    document.getElementById('p-open').textContent = d.ghl.opportunities.open;
-    document.getElementById('p-won').textContent = d.ghl.opportunities.won;
-    document.getElementById('p-lost').textContent = d.ghl.opportunities.lost;
-    document.getElementById('p-total').textContent = d.ghl.opportunities.total + ' total opportunities';
-
-    document.getElementById('activate-banner').style.display = 'none';
-    document.getElementById('lupd').textContent = 'Updated '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
-
+    render(d);
+    document.getElementById('act-warn').style.display='none';
+    document.getElementById('status-pill').style.cssText='';
+    document.getElementById('status-pill').textContent='Live';
+    document.getElementById('hdr-time').textContent='Updated '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
   } catch(e) {
     console.error(e);
-    document.getElementById('lupd').textContent = 'Error — retrying...';
-    document.getElementById('activate-banner').style.display = 'flex';
-    // Show error states
-    ['wf-list','ex-list','pay-list'].forEach(function(id){
-      document.getElementById(id).innerHTML = '<div class="err">Could not load — check n8n workflow is activated.</div>';
-    });
+    document.getElementById('act-warn').style.display='block';
+    document.getElementById('status-pill').style.background='rgba(255,69,58,0.1)';
+    document.getElementById('status-pill').style.color='var(--rd)';
+    document.getElementById('status-pill').textContent='Error';
+    document.getElementById('hdr-time').textContent='Failed to load';
   }
+  btn.classList.remove('spinning');
 }
+
+function render(d){
+  var s = d.stripe || {};
+  var g = d.ghl || {};
+  var n = d.n8n || {};
+  var oa = d.openai || {};
+
+  // Hero
+  document.getElementById('h-mrr').textContent = aud(s.mrr||0);
+  document.getElementById('h-mrr-s').textContent = (s.active_subscriptions||0)+' active clients';
+  document.getElementById('h-rev').textContent = aud(s.month_revenue||0);
+  document.getElementById('h-rev-s').textContent = 'charged this month';
+  document.getElementById('h-subs').textContent = s.active_subscriptions||0;
+  var pd = s.past_due||0;
+  document.getElementById('h-subs-s').textContent = pd > 0 ? pd+' past due' : 'all current';
+  if(pd>0) document.getElementById('h-subs-s').style.color='var(--rd)';
+
+  var tc = g.total_contacts;
+  document.getElementById('h-contacts').textContent = typeof tc==='number' ? tc.toLocaleString() : (tc||'—');
+  document.getElementById('h-contacts-s').textContent = 'in GHL CRM';
+  document.getElementById('h-auto').textContent = n.active_workflows||0;
+  document.getElementById('h-auto-s').textContent = (n.total_workflows||0)+' total workflows';
+
+  // Clients table
+  var subs = s.subscriptions||[];
+  document.getElementById('clients-count').textContent = subs.length+' clients';
+  var tbody = subs.map(function(c){
+    var status = c.status==='active' ? '<span class="rbadge rb-g">Active</span>' : '<span class="rbadge rb-a">'+c.status+'</span>';
+    return '<tr><td>'+escHtml(c.customer_name)+'</td><td class="mrr-tag">'+aud(c.mrr)+'/mo</td><td>'+status+'</td><td>'+nextBill(c.current_period_end)+'</td></tr>';
+  }).join('') || '<tr><td colspan="4" class="empty">No active subscriptions</td></tr>';
+  document.getElementById('clients-tbody').innerHTML = tbody;
+
+  // Payments
+  document.getElementById('pay-month').textContent = aud(s.month_revenue||0)+' this month';
+  var pays = s.recent_charges||[];
+  document.getElementById('pay-list').innerHTML = pays.slice(0,10).map(function(p){
+    var color = p.status==='succeeded' ? 'var(--gr)' : 'var(--rd)';
+    return '<div class="prow"><div class="pamt" style="color:'+color+'">'+aud(p.amount)+'</div><div class="pdesc">'+escHtml(p.description||'Payment')+'</div><div class="pdate">'+fdate(p.date)+' '+ftime(p.date)+'</div></div>';
+  }).join('') || '<div class="empty">No payments this month</div>';
+
+  // Workflows
+  var wfs = n.workflows||[];
+  document.getElementById('wf-active-count').textContent = (n.active_workflows||0)+' active';
+  document.getElementById('wf-total-count').textContent = (n.total_workflows||0)+' total';
+  document.getElementById('wf-list').innerHTML = wfs.slice(0,16).map(function(w){
+    var dot = w.active ? 'dg' : 'dm';
+    var badge = w.active ? '<span class="rbadge rb-g">On</span>' : '<span class="rbadge" style="background:rgba(255,255,255,0.06);color:var(--mu)">Off</span>';
+    return '<div class="row"><div class="dot '+dot+'"></div><div class="rn">'+escHtml(w.name)+'</div>'+badge+'</div>';
+  }).join('') || '<div class="empty">No workflows found</div>';
+
+  // Executions
+  var exs = n.executions||[];
+  document.getElementById('ex-list').innerHTML = exs.slice(0,14).map(function(e){
+    var st = (e.status||'').toLowerCase();
+    var dot = st==='success'?'dg':st==='error'?'dr':'da';
+    var badge = st==='success'?'rb-g':st==='error'?'rb-e':'rb-r';
+    var label = st==='success'?'OK':st==='error'?'Error':'Running';
+    return '<div class="row"><div class="dot '+dot+'"></div><div class="rn">'+escHtml(e.workflowName||'Workflow')+'</div><div class="rm">'+ago(e.startedAt)+'</div><span class="rbadge '+badge+'">'+label+'</span></div>';
+  }).join('') || '<div class="empty">No recent executions</div>';
+
+  // Pipeline
+  var opps = g.opportunities||{};
+  document.getElementById('p-open').textContent = opps.open||0;
+  document.getElementById('p-won').textContent = opps.won||0;
+  document.getElementById('p-lost').textContent = opps.lost||0;
+  var pv = g.pipeline_value||0;
+  document.getElementById('pipe-value').textContent = pv > 0 ? '$'+Math.round(pv).toLocaleString()+' pipeline' : (opps.total||0)+' total';
+  document.getElementById('pipe-note').textContent = (opps.total||0)+' total opportunities';
+
+  // LLM Usage
+  renderLLM(oa);
+}
+
+function renderLLM(oa){
+  var html = '';
+  if(!oa || oa.note === 'requires api.usage.read scope on OpenAI key') {
+    html = '<div class="info-box">'+
+      'OpenAI usage data requires an API key with <strong>api.usage.read</strong> scope.<br>'+
+      '<a href="https://platform.openai.com/api-keys" target="_blank">Create a new key with usage permissions →</a><br><br>'+
+      'Once updated in the n8n workflow, token usage per model will show here in real time.'+
+      '</div>';
+    // Show placeholder models
+    var models = [
+      { name: 'GPT-4o', provider: 'OpenAI', note: 'Primary reasoning' },
+      { name: 'claude-sonnet-4', provider: 'Anthropic', note: 'OpenClaw agent' },
+      { name: 'Whisper v3', provider: 'OpenAI', note: 'Voice transcription' },
+    ];
+    html += models.map(function(m){
+      return '<div class="llm-row"><div class="llm-model">'+m.name+'<br><span style="font:400 10px/1 Inter,sans-serif;color:var(--mu)">'+m.note+'</span></div><div class="llm-bar-wrap"><div class="llm-bar" style="width:0%"></div></div><div class="llm-tokens" style="color:var(--mu)">—</div><div class="llm-cost" style="color:var(--mu)">—</div></div>';
+    }).join('');
+  } else if(oa.today) {
+    var models = Object.keys(oa.today);
+    var maxTokens = Math.max.apply(null, models.map(function(m){ return (oa.today[m].prompt||0)+(oa.today[m].completion||0); })) || 1;
+    if(models.length === 0){
+      html = '<div class="empty">No API usage today</div>';
+    } else {
+      html = models.map(function(m){
+        var u = oa.today[m];
+        var total = (u.prompt||0)+(u.completion||0);
+        var pct = Math.round((total/maxTokens)*100);
+        var costEst = ((u.prompt||0)*0.0000025 + (u.completion||0)*0.000010);
+        return '<div class="llm-row"><div class="llm-model">'+m+'</div><div class="llm-bar-wrap"><div class="llm-bar" style="width:'+pct+'%"></div></div><div class="llm-tokens">'+fmt(total)+' tok</div><div class="llm-cost">~$'+costEst.toFixed(3)+'</div></div>';
+      }).join('');
+    }
+  }
+  document.getElementById('llm-section').innerHTML = html;
+}
+
+function escHtml(t){ var d=document.createElement('div');d.appendChild(document.createTextNode(t||''));return d.innerHTML; }
 
 loadAll();
 setInterval(loadAll, 60000);
+
+// Clock
+setInterval(function(){
+  document.getElementById('hdr-time').textContent = new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+}, 10000);
 </script>
 </body>
 </html>
