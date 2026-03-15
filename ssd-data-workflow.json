@@ -1,0 +1,85 @@
+{
+    "settings":  {
+                     "executionOrder":  "v1"
+                 },
+    "name":  "SSD - Command Centre Data API",
+    "connections":  {
+                        "Fetch All Data":  {
+                                               "main":  [
+                                                            {
+                                                                "node":  "Respond to Webhook",
+                                                                "type":  "main",
+                                                                "index":  0
+                                                            }
+                                                        ]
+                                           },
+                        "Webhook":  {
+                                        "main":  [
+                                                     {
+                                                         "node":  "Fetch All Data",
+                                                         "type":  "main",
+                                                         "index":  0
+                                                     }
+                                                 ]
+                                    }
+                    },
+    "nodes":  [
+                  {
+                      "id":  "node-webhook",
+                      "name":  "Webhook",
+                      "parameters":  {
+                                         "path":  "ssd-dashboard-data",
+                                         "responseMode":  "responseNode",
+                                         "httpMethod":  "GET"
+                                     },
+                      "type":  "n8n-nodes-base.webhook",
+                      "position":  [
+                                       240,
+                                       300
+                                   ],
+                      "typeVersion":  2
+                  },
+                  {
+                      "id":  "node-code",
+                      "name":  "Fetch All Data",
+                      "parameters":  {
+                                         "mode":  "runOnceForAllItems",
+                                         "jsCode":  "const SK=\u0027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\u0027;\nconst GT=\u0027pit-d626a99b-3a5e-4e51-aa5e-2371e4b2b5f6\u0027;\nconst GL=\u0027pit-f248c803-01d7-4970-a909-1f1badeebd45\u0027;\nconst NT=\u0027eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjJmNmJmNi0zMDVmLTQwYmItODczYy0wMTA5YTMxMjJiMTAiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiMTczMTJmYTAtODA2MC00MTdlLWE4ZjEtZTMxYTZiOWE3M2FjIiwiaWF0IjoxNzczMTkzMzY4fQ.iP3Sd6P2D5TkrKDrjcfEpOteMr2ppXRk7AHy3evNyAA\u0027;\n\nasync function g(url, h) {\n  try { const r = await fetch(url, {headers: h}); if (!r.ok) return null; return r.json(); }\n  catch(e) { return null; }\n}\n\nconst sH = {Authorization: \u0027Bearer \u0027 + SK};\nconst gH = {Authorization: \u0027Bearer \u0027 + GT, Version: \u00272021-07-28\u0027};\nconst nH = {\u0027X-N8N-API-KEY\u0027: NT};\nconst mS = new Date(); mS.setDate(1); mS.setHours(0,0,0,0);\nconst mSts = Math.floor(mS.getTime() / 1000);\n\nconst [sA, sPD, ch, gC, gO, wfD, exD] = await Promise.all([\n  g(\u0027https://api.stripe.com/v1/subscriptions?status=active\u0026limit=100\u0026expand[]=data.customer\u0027, sH),\n  g(\u0027https://api.stripe.com/v1/subscriptions?status=past_due\u0026limit=100\u0027, sH),\n  g(\u0027https://api.stripe.com/v1/charges?limit=15\u0026created[gte]=\u0027 + mSts, sH),\n  g(\u0027https://services.leadconnectorhq.com/contacts/?locationId=\u0027 + GL + \u0027\u0026limit=1\u0027, gH),\n  g(\u0027https://services.leadconnectorhq.com/opportunities/search?location_id=\u0027 + GL + \u0027\u0026limit=100\u0027, gH),\n  g(\u0027https://sunstatedigital.app.n8n.cloud/api/v1/workflows?limit=100\u0027, nH),\n  g(\u0027https://sunstatedigital.app.n8n.cloud/api/v1/executions?limit=20\u0026includeData=false\u0027, nH)\n]);\n\nconst acts = (sA \u0026\u0026 sA.data) || [];\nlet mrr = 0;\nconst subs = acts.map(s =\u003e {\n  let sm = 0;\n  (s.items \u0026\u0026 s.items.data || []).forEach(i =\u003e {\n    let a = i.price.unit_amount || 0;\n    if (i.price \u0026\u0026 i.price.recurring \u0026\u0026 i.price.recurring.interval === \u0027year\u0027) a = Math.round(a/12);\n    sm += a;\n  });\n  mrr += sm;\n  return {id: s.id, customer_name: s.customer \u0026\u0026 (s.customer.name || s.customer.email) || \u0027Unknown\u0027, customer_email: s.customer \u0026\u0026 s.customer.email || \u0027\u0027, mrr: sm, status: s.status, created: s.created, current_period_end: s.current_period_end};\n});\n\nconst charges = (ch \u0026\u0026 ch.data) || [];\nconst mRev = charges.filter(c =\u003e c.status === \u0027succeeded\u0027).reduce((a,c) =\u003e a + c.amount, 0);\nconst wfs = (wfD \u0026\u0026 wfD.data) || [];\nconst exs = (exD \u0026\u0026 exD.data) || [];\nconst tc = (gC \u0026\u0026 (gC.meta \u0026\u0026 gC.meta.total || gC.total)) || 0;\nconst opps = (gO \u0026\u0026 (gO.opportunities || gO.data)) || [];\n\nreturn [{json: {\n  generated_at: new Date().toISOString(),\n  stripe: {\n    mrr, active_subscriptions: acts.length,\n    past_due: (sPD \u0026\u0026 sPD.data \u0026\u0026 sPD.data.length) || 0,\n    month_revenue: mRev,\n    subscriptions: subs.sort((a,b) =\u003e b.mrr - a.mrr).slice(0,15),\n    recent_charges: charges.slice(0,12).map(c =\u003e ({amount: c.amount, description: c.description || (c.billing_details \u0026\u0026 c.billing_details.name) || \u0027Charge\u0027, date: c.created, status: c.status}))\n  },\n  ghl: {\n    total_contacts: tc,\n    pipeline_value: opps.filter(o =\u003e o.status === \u0027open\u0027).reduce((a,o) =\u003e a + (o.monetaryValue||0), 0),\n    opportunities: {open: opps.filter(o =\u003e o.status===\u0027open\u0027).length, won: opps.filter(o =\u003e o.status===\u0027won\u0027).length, lost: opps.filter(o =\u003e o.status===\u0027lost\u0027).length, total: opps.length}\n  },\n  n8n: {\n    total_workflows: wfs.length, active_workflows: wfs.filter(w =\u003e w.active).length,\n    workflows: wfs.slice(0,25).map(w =\u003e ({id: w.id, name: w.name, active: w.active, updatedAt: w.updatedAt})),\n    executions: exs.slice(0,20).map(e =\u003e ({id: e.id, workflowName: (e.workflowData \u0026\u0026 e.workflowData.name) || e.workflowId || \u0027Workflow\u0027, status: e.status || (e.finished ? \u0027success\u0027 : \u0027running\u0027), startedAt: e.startedAt}))\n  },\n  openai: {note: \u0027Add api.usage.read key to enable token tracking\u0027}\n}}];"
+                                     },
+                      "type":  "n8n-nodes-base.code",
+                      "position":  [
+                                       500,
+                                       300
+                                   ],
+                      "typeVersion":  2
+                  },
+                  {
+                      "id":  "node-respond",
+                      "name":  "Respond to Webhook",
+                      "parameters":  {
+                                         "responseBody":  "={{ JSON.stringify($json) }}",
+                                         "respondWith":  "json",
+                                         "options":  {
+                                                         "responseHeaders":  {
+                                                                                 "entries":  [
+                                                                                                 {
+                                                                                                     "value":  "*",
+                                                                                                     "name":  "Access-Control-Allow-Origin"
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "value":  "application/json",
+                                                                                                     "name":  "Content-Type"
+                                                                                                 }
+                                                                                             ]
+                                                                             }
+                                                     }
+                                     },
+                      "type":  "n8n-nodes-base.respondToWebhook",
+                      "position":  [
+                                       760,
+                                       300
+                                   ],
+                      "typeVersion":  1
+                  }
+              ]
+}
