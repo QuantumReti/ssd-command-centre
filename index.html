@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSD Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080808;--glass:rgba(255,255,255,0.06);--gb:rgba(255,255,255,0.12);--gls:rgba(255,255,255,0.10);--gold:#FFD700;--gm:#C8920A;--gg:linear-gradient(135deg,#FFD700,#C8920A);--mu:rgba(255,255,255,0.45);--wh:#fff;--gr:#34C759;--am:#FF9F0A;--rd:#FF3B30;--bl:#0A84FF}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--wh);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.orb1{width:800px;height:800px;background:radial-gradient(circle,rgba(255,215,0,0.08),transparent 70%);top:-200px;right:-200px;animation:f1 20s ease-in-out infinite alternate}
+.orb2{width:600px;height:600px;background:radial-gradient(circle,rgba(10,132,255,0.06),transparent 70%);bottom:-100px;left:-100px;animation:f2 25s ease-in-out infinite alternate}
+@keyframes f1{from{transform:translate(0,0)}to{transform:translate(-80px,100px)}}
+@keyframes f2{from{transform:translate(0,0)}to{transform:translate(60px,-80px)}}
+.app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:28px 20px 80px}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding:18px 24px;background:var(--glass);backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);border:1px solid var(--gb);border-radius:20px}
+.logo{font-size:18px;font-weight:900;letter-spacing:2px;display:flex;align-items:center;gap:10px}
+.logo-ssd{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-tag{font:400 11px/1 Inter,sans-serif;color:var(--mu);letter-spacing:1.5px;text-transform:uppercase}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.rbtn{background:rgba(255,255,255,0.05);border:1px solid var(--gb);color:var(--gold);font:600 11px/1 Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;padding:9px 16px;border-radius:100px;cursor:pointer;transition:all .2s}
+.rbtn:hover{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.4)}
+.lupd{font:400 12px/1 Inter,sans-serif;color:var(--mu)}
+
+/* Hero stats */
+.hg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.sc{background:var(--glass);backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);border:1px solid var(--gb);border-radius:22px;padding:24px 20px;position:relative;overflow:hidden;transition:all .3s}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)}
+.sc:hover{border-color:rgba(255,215,0,0.3);transform:translateY(-2px);box-shadow:0 16px 48px rgba(0,0,0,0.4)}
+.sl{font:500 10px/1 Inter,sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:10px}
+.sv{font:800 34px/1 Inter,sans-serif;color:var(--wh);margin-bottom:5px}
+.sv.gold{background:var(--gg);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ss{font:400 11px/1 Inter,sans-serif;color:var(--mu)}
+.si{position:absolute;top:18px;right:18px;font-size:26px;opacity:0.25}
+
+/* Cards */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.card{background:var(--glass);backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);border:1px solid var(--gb);border-radius:22px;padding:24px;position:relative;overflow:hidden;transition:border-color .3s}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)}
+.card:hover{border-color:rgba(255,215,0,0.2)}
+.ct{font:700 10px/1 Inter,sans-serif;letter-spacing:2.5px;text-transform:uppercase;color:var(--mu);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.ct::before{content:'';width:18px;height:2px;background:var(--gg);border-radius:2px;flex-shrink:0}
+.fw{grid-column:1/-1}
+
+/* List items */
+.li{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;margin-bottom:6px;transition:background .2s}
+.li:hover{background:rgba(255,255,255,0.06)}
+.li:last-child{margin-bottom:0}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dg{background:var(--gr);box-shadow:0 0 6px var(--gr)}
+.da{background:var(--am);box-shadow:0 0 6px var(--am)}
+.dr{background:var(--rd);box-shadow:0 0 6px var(--rd)}
+.dm{background:rgba(255,255,255,0.2)}
+.ln{flex:1;font:500 12px/1 Inter,sans-serif;color:rgba(255,255,255,0.85)}
+.lm{font:400 11px/1 Inter,sans-serif;color:var(--mu)}
+.badge{font:600 10px/1 Inter,sans-serif;padding:3px 8px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase}
+.bs{background:rgba(52,199,89,0.15);color:var(--gr)}
+.be{background:rgba(255,59,48,0.15);color:var(--rd)}
+.br{background:rgba(10,132,255,0.15);color:var(--bl)}
+
+/* Payments */
+.pi{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;margin-bottom:6px;transition:background .2s}
+.pi:hover{background:rgba(255,255,255,0.06)}
+.pa{font:700 14px/1 Inter,sans-serif;color:var(--gr);min-width:70px}
+.pd{flex:1;font:400 12px/1.3 Inter,sans-serif;color:rgba(255,255,255,0.7)}
+.pdt{font:400 11px/1 Inter,sans-serif;color:var(--mu)}
+.ps{font:600 9px/1 Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:100px}
+.pss{background:rgba(52,199,89,0.15);color:var(--gr)}
+.psf{background:rgba(255,59,48,0.15);color:var(--rd)}
+.psp{background:rgba(255,159,10,0.15);color:var(--am)}
+
+/* Pipeline */
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.pstage{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;text-align:center}
+.pc{font:800 30px/1 Inter,sans-serif;margin-bottom:4px}
+.plb{font:400 10px/1 Inter,sans-serif;color:var(--mu);text-transform:uppercase;letter-spacing:1.5px}
+
+/* Shimmer */
+.shim{background:linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.05) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:13px;margin-bottom:7px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.err{background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.18);border-radius:10px;padding:10px 14px;font:400 12px/1.4 Inter,sans-serif;color:rgba(255,120,100,.9);margin-top:8px}
+.empty{color:var(--mu);font-size:12px;text-align:center;padding:16px}
+
+/* Activate banner */
+.activate-banner{background:rgba(255,159,10,0.1);border:1px solid rgba(255,159,10,0.3);border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.activate-banner a{color:var(--am);font-weight:700;text-decoration:underline}
+.activate-banner span{font:400 13px/1.5 Inter,sans-serif;color:rgba(255,255,255,0.8)}
+
+@media(max-width:900px){.hg{grid-template-columns:repeat(2,1fr)}.mg{grid-template-columns:1fr}.pg{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:500px){.hg{grid-template-columns:1fr}.sv{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="app">
+
+  <div class="hdr">
+    <div class="logo">
+      <span class="logo-ssd">SUN STATE</span><span style="font-weight:400;color:rgba(255,255,255,0.5)">digital</span>
+      <span class="logo-tag">Command Centre</span>
+    </div>
+    <div class="hdr-right">
+      <span class="lupd" id="lupd">Loading...</span>
+      <button class="rbtn" onclick="loadAll()">⟳ Refresh</button>
+    </div>
+  </div>
+
+  <div class="activate-banner" id="activate-banner" style="display:none">
+    <span>⚠️ <strong>One-time setup required:</strong> The data API workflow needs to be activated. <a href="https://sunstatedigital.app.n8n.cloud/workflow/VukGFM2d3XS4c9uq" target="_blank">Click here to activate it</a> — toggle the switch top-right in n8n, then refresh this page.</span>
+  </div>
+
+  <!-- Hero Stats -->
+  <div class="hg">
+    <div class="sc"><div class="si">💰</div><div class="sl">Monthly Recurring Revenue</div><div class="sv gold" id="s-mrr">—</div><div class="ss" id="s-mrr-s">Loading...</div></div>
+    <div class="sc"><div class="si">📋</div><div class="sl">Active Subscriptions</div><div class="sv" id="s-subs">—</div><div class="ss" id="s-subs-s">Loading...</div></div>
+    <div class="sc"><div class="si">👥</div><div class="sl">CRM Contacts</div><div class="sv" id="s-contacts">—</div><div class="ss" id="s-contacts-s">Loading...</div></div>
+    <div class="sc"><div class="si">⚡</div><div class="sl">Active Automations</div><div class="sv" id="s-auto">—</div><div class="ss" id="s-auto-s">Loading...</div></div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="mg">
+
+    <div class="card">
+      <div class="ct">Workflows</div>
+      <div id="wf-list"><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Recent Executions</div>
+      <div id="ex-list"><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Recent Payments</div>
+      <div id="pay-list"><div class="shim"></div><div class="shim"></div><div class="shim"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Pipeline — Opportunities</div>
+      <div class="pg">
+        <div class="pstage"><div class="pc" style="color:var(--bl)" id="p-open">—</div><div class="plb">Open</div></div>
+        <div class="pstage"><div class="pc" style="color:var(--gr)" id="p-won">—</div><div class="plb">Won</div></div>
+        <div class="pstage"><div class="pc" style="color:var(--rd)" id="p-lost">—</div><div class="plb">Lost</div></div>
+      </div>
+      <div id="p-total" style="font:400 12px/1 Inter,sans-serif;color:var(--mu);text-align:center"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+var DATA_URL = 'https://sunstatedigital.app.n8n.cloud/webhook/ssd-dashboard-data';
+
+function aud(c){ return '$'+(c/100).toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fdate(ts){ return new Date(ts*1000).toLocaleDateString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+function ago(iso){
+  if(!iso) return '';
+  var s = Math.floor((Date.now() - new Date(iso).getTime())/1000);
+  if(s<60) return s+'s ago';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
+function shims(n){ var h=''; for(var i=0;i<n;i++) h+='<div class="shim"></div>'; return h; }
+
+async function loadAll(){
+  document.getElementById('lupd').textContent = 'Refreshing...';
+
+  try {
+    var res = await fetch(DATA_URL);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var d = await res.json();
+
+    // MRR
+    document.getElementById('s-mrr').textContent = aud(d.stripe.mrr);
+    document.getElementById('s-mrr-s').textContent = 'from '+d.stripe.active_subscriptions+' subscriptions';
+
+    // Subs
+    document.getElementById('s-subs').textContent = d.stripe.active_subscriptions;
+    document.getElementById('s-subs-s').textContent = 'active recurring';
+
+    // Contacts
+    var tc = d.ghl.total_contacts;
+    document.getElementById('s-contacts').textContent = typeof tc === 'number' ? tc.toLocaleString() : tc || '—';
+    document.getElementById('s-contacts-s').textContent = 'in GHL CRM';
+
+    // Automations
+    document.getElementById('s-auto').textContent = d.n8n.active_workflows;
+    document.getElementById('s-auto-s').textContent = d.n8n.total_workflows+' total workflows';
+
+    // Workflows
+    var wfHtml = (d.n8n.workflows||[]).slice(0,14).map(function(w){
+      var dot = w.active ? 'dg' : 'dm';
+      return '<div class="li"><div class="dot '+dot+'"></div><div class="ln">'+w.name+'</div><div class="lm">'+(w.active?'Active':'Inactive')+'</div></div>';
+    }).join('') || '<div class="empty">No workflows</div>';
+    document.getElementById('wf-list').innerHTML = wfHtml;
+
+    // Executions
+    var exHtml = (d.n8n.executions||[]).slice(0,12).map(function(e){
+      var st = (e.status||'').toLowerCase();
+      var dot = st==='success'?'dg':st==='error'?'dr':'da';
+      var badge = st==='success'?'bs':st==='error'?'be':'br';
+      var label = st==='success'?'OK':st==='error'?'Error':'Running';
+      return '<div class="li"><div class="dot '+dot+'"></div><div class="ln">'+(e.workflowName||'Workflow')+'</div><div class="lm">'+ago(e.startedAt)+'</div><div class="badge '+badge+'">'+label+'</div></div>';
+    }).join('') || '<div class="empty">No executions</div>';
+    document.getElementById('ex-list').innerHTML = exHtml;
+
+    // Payments
+    var payHtml = (d.stripe.payments||[]).slice(0,10).map(function(p){
+      var sc = p.status==='succeeded'?'pss':p.status==='failed'?'psf':'psp';
+      return '<div class="pi"><div class="pa">'+aud(p.amount)+'</div><div class="pd">'+(p.description||'Payment')+'</div><div class="pdt">'+fdate(p.date)+'</div><div class="ps '+sc+'">'+p.status+'</div></div>';
+    }).join('') || '<div class="empty">No payments</div>';
+    document.getElementById('pay-list').innerHTML = payHtml;
+
+    // Pipeline
+    document.getElementById('p-open').textContent = d.ghl.opportunities.open;
+    document.getElementById('p-won').textContent = d.ghl.opportunities.won;
+    document.getElementById('p-lost').textContent = d.ghl.opportunities.lost;
+    document.getElementById('p-total').textContent = d.ghl.opportunities.total + ' total opportunities';
+
+    document.getElementById('activate-banner').style.display = 'none';
+    document.getElementById('lupd').textContent = 'Updated '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('lupd').textContent = 'Error — retrying...';
+    document.getElementById('activate-banner').style.display = 'flex';
+    // Show error states
+    ['wf-list','ex-list','pay-list'].forEach(function(id){
+      document.getElementById(id).innerHTML = '<div class="err">Could not load — check n8n workflow is activated.</div>';
+    });
+  }
+}
+
+loadAll();
+setInterval(loadAll, 60000);
+</script>
+</body>
+</html>
