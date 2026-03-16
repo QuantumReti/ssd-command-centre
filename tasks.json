@@ -1,1 +1,75 @@
-{"tasks":[],"last_updated":"2026-03-15T13:56:33Z"}
+{
+    "tasks":  [
+                  {
+                      "status":  "todo",
+                      "id":  "blog-001",
+                      "title":  "Blog Pipeline — Switch to OpenRouter (OpenAI credit exhausted)",
+                      "project":  "Blog Automation",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Update blog_pipeline.py to use openrouter/anthropic/claude-haiku-4-5 instead of GPT-4o while OpenAI is topped up",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "blog-002",
+                      "title":  "Blog Pipeline — Top up OpenAI account",
+                      "project":  "Blog Automation",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Add \\ credit at platform.openai.com/billing — needed for GPT-4o blog writing pipeline",
+                      "assigned":  "Josh"
+                  },
+                  {
+                      "status":  "in-progress",
+                      "id":  "blog-003",
+                      "title":  "Sohel — Create AI Blogs CMS collection on all 9 Framer sites",
+                      "project":  "Blog Automation",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Fields: title (Text), github_url (Link), published_date (Date), slug (Text). Instructions emailed to Sohel.framer@gmail.com",
+                      "assigned":  "Sohel"
+                  },
+                  {
+                      "status":  "in-progress",
+                      "id":  "blog-004",
+                      "title":  "Sohel — Create /blogs-for-ai page on all 9 Framer sites + 3 Duda sites",
+                      "project":  "Blog Automation",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "CMS list showing title + date + github link. Keep design minimal — SEO/AI crawler page.",
+                      "assigned":  "Sohel"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "blog-005",
+                      "title":  "Blog Pipeline — Run live test on Quantum Buyers Agents",
+                      "project":  "Blog Automation",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "BLOCKED: Waiting on (1) OpenAI credit top-up or OpenRouter switch, (2) Sohel to complete Framer CMS setup. Run: python automation/blog_pipeline.py --client \u0027Quantum Buyers Agents\u0027",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "blog-006",
+                      "title":  "Blog Pipeline — Roll out to all clients after test passes",
+                      "project":  "Blog Automation",
+                      "priority":  "medium",
+                      "created":  "2026-03-16",
+                      "notes":  "BLOCKED: Waiting on blog-005 test passing. Then add weekly Monday 7am cron job.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "blog-007",
+                      "title":  "Add blog pipeline cron job (Monday 7am weekly)",
+                      "project":  "Blog Automation",
+                      "priority":  "medium",
+                      "created":  "2026-03-16",
+                      "notes":  "BLOCKED: Add to openclaw cron only after live test confirmed working. Run all 12 clients weekly.",
+                      "assigned":  "Mason"
+                  }
+              ],
+    "last_updated":  "2026-03-15T13:56:33Z"
+}
