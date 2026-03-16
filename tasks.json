@@ -11,7 +11,7 @@
                       "assigned":  "Mason"
                   },
                   {
-                      "status":  "todo",
+                      "status":  "done",
                       "id":  "blog-002",
                       "title":  "Blog Pipeline — Top up OpenAI account",
                       "project":  "Blog Automation",
