@@ -69,6 +69,96 @@
                       "created":  "2026-03-16",
                       "notes":  "BLOCKED: Add to openclaw cron only after live test confirmed working. Run all 12 clients weekly.",
                       "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "ghl-goldstar-001",
+                      "title":  "Gold Star Bathrooms — Update GHL workflows \u0026 calendar settings",
+                      "project":  "Gold Star Bathrooms",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Review and update GHL automation workflows + calendar/booking settings for Gold Star Bathrooms",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "frametek-ads-001",
+                      "title":  "Frametek — Set up Google Ads account",
+                      "project":  "Frametek",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Customer ID: 236-327-4158. Set up campaigns via MCC 815-802-5423. Need campaign brief from Josh first.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "frametek-social-001",
+                      "title":  "Frametek — Create social media content",
+                      "project":  "Frametek",
+                      "priority":  "medium",
+                      "created":  "2026-03-16",
+                      "notes":  "Create social content for Frametek. Confirm platforms (Facebook/Instagram/LinkedIn). Need brand assets.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "frametek-retargeting-001",
+                      "title":  "Frametek — Set up Facebook retargeting ads",
+                      "project":  "Frametek",
+                      "priority":  "medium",
+                      "created":  "2026-03-16",
+                      "notes":  "Set up Facebook/Instagram retargeting campaign for Frametek. Need FB Ad account ID and pixel ID.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "qba-website-001",
+                      "title":  "Quantum — Upload boat party images to website",
+                      "project":  "Quantum Buyers Agents",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Add boat party photos to QBA website. Josh to provide image files.",
+                      "assigned":  "Sohel"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "qba-website-002",
+                      "title":  "Quantum — Update Dan Weh\u0027s agent profile",
+                      "project":  "Quantum Buyers Agents",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Dan Weh has specific requests for his profile page update. Josh to confirm exact changes needed from Dan.",
+                      "assigned":  "Sohel"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "qba-seo-001",
+                      "title":  "Quantum — Dan Weh Sunshine Coast SEO",
+                      "project":  "Quantum Buyers Agents",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Improve Dan Weh\u0027s visibility for Sunshine Coast searches. Add SC-specific SEO to his profile page, create SC-targeted blog content, add location schema markup. Dan needs to rank for \u0027buyers agent Sunshine Coast\u0027.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-001",
+                      "title":  "Set up AWS EC2 server (Sydney region) for cloud failover",
+                      "project":  "Infrastructure",
+                      "priority":  "medium",
+                      "created":  "2026-03-16",
+                      "notes":  "Move OpenClaw to AWS EC2 t3.small (ap-southeast-2). Add Cloudflare on top. ~ AUD/month. Josh needs AWS account first.",
+                      "assigned":  "Josh + Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-002",
+                      "title":  "Connect Facebook \u0026 Instagram DMs to Mason",
+                      "project":  "Infrastructure",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Josh to create Meta Business App at developers.facebook.com. Need App ID + App Secret to proceed. Then configure n8n webhook for real-time DM + comment handling.",
+                      "assigned":  "Josh + Mason"
                   }
               ],
     "last_updated":  "2026-03-15T13:56:33Z"
