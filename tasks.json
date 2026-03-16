@@ -159,6 +159,76 @@
                       "created":  "2026-03-16",
                       "notes":  "Josh to create Meta Business App at developers.facebook.com. Need App ID + App Secret to proceed. Then configure n8n webhook for real-time DM + comment handling.",
                       "assigned":  "Josh + Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-003",
+                      "title":  "AWS EC2 — Spin up multi-tenant server (Sydney ap-southeast-2)",
+                      "project":  "Infrastructure",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "t3.medium (2 vCPU, 4GB RAM). Ubuntu 22.04. Open ports 80, 443, 3000, 22. Josh needs AWS account. ~35 AUD/month.",
+                      "assigned":  "Josh + Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-004",
+                      "title":  "Install OpenClaw on AWS + migrate Mason workspace",
+                      "project":  "Infrastructure",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "BLOCKED: needs infra-003. Install Node, OpenClaw, copy workspace files, reconnect WhatsApp session, test all cron jobs.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-005",
+                      "title":  "Cloudflare — Add DNS + SSL for ai.sunstatedigital.com.au",
+                      "project":  "Infrastructure",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "BLOCKED: needs infra-003. Point subdomain to EC2 IP. Enable Cloudflare proxy for DDoS protection + free SSL.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-006",
+                      "title":  "Build AI Agency provisioning system",
+                      "project":  "AI Agency Product",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Build script to provision new client agent in \u003c30 mins. Creates: isolated workspace, agent config, persona, WhatsApp slot, cron jobs. Template-based — Sales, Ops, Full-Stack tiers.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-007",
+                      "title":  "Create AI Agency product tiers + onboarding doc",
+                      "project":  "AI Agency Product",
+                      "priority":  "medium",
+                      "created":  "2026-03-16",
+                      "notes":  "Starter \\/month, Growth \\,000/month, Ops \\,500/month, Enterprise \\,500/month. Build internal onboarding checklist for each tier.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-008",
+                      "title":  "Set up automated daily backup (workspace + config → private GitHub repo)",
+                      "project":  "Infrastructure",
+                      "priority":  "high",
+                      "created":  "2026-03-16",
+                      "notes":  "Encrypted daily backup of all workspace files, .env, openclaw.json to private GitHub repo. Restore script for disaster recovery.",
+                      "assigned":  "Mason"
+                  },
+                  {
+                      "status":  "todo",
+                      "id":  "infra-009",
+                      "title":  "Document full disaster recovery procedure",
+                      "project":  "Infrastructure",
+                      "priority":  "medium",
+                      "created":  "2026-03-16",
+                      "notes":  "Step-by-step: if PC/server dies, how to restore full operation in \u003c10 mins on any device.",
+                      "assigned":  "Mason"
                   }
               ],
     "last_updated":  "2026-03-15T13:56:33Z"
