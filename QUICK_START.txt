@@ -1,0 +1,104 @@
+QUICK START - SUN STATE DIGITAL DEPLOYMENT (10 Minutes)
+========================================================
+
+REQUIREMENT: AWS account with appropriate permissions, git installed
+
+STEP 1: CLONE REPOSITORY (1 min)
+────────────────────────────────
+git clone https://github.com/QuantumReti/ssd-command-centre
+cd ssd-command-centre
+
+STEP 2: SETUP ENVIRONMENT (2 min)
+─────────────────────────────────
+cp .env.example .env
+
+Edit .env with your values:
+  AWS_REGION=ap-southeast-2 (Sydney)
+  AWS_ACCESS_KEY_ID=your_key
+  AWS_SECRET_ACCESS_KEY=your_secret
+  DOMAIN=ssd.cloud
+  EMAIL=josh@sunstatedigital.com.au
+
+STEP 3: INITIALIZE (1 min)
+──────────────────────────
+bash setup.sh
+
+This will:
+  - Validate your AWS credentials
+  - Create VPCs, security groups, subnets
+  - Setup RDS PostgreSQL
+  - Create S3 buckets for backups
+  - Initialize Terraform state
+
+STEP 4: DEPLOY SERVICES (5 min)
+───────────────────────────────
+bash deploy-all.sh
+
+This will:
+  - Deploy OpenClaw Gateway (authentication, routing)
+  - Deploy Quantum Backend (client management, workflows)
+  - Deploy N8n (workflow automation)
+  - Deploy Blog Frontend (public-facing site)
+  - Configure load balancers
+  - Setup SSL certificates
+  - Enable auto-scaling
+
+WATCH THE OUTPUT - you'll see:
+  ✅ Gateway deployed to 13.237.5.80
+  ✅ API live at ssd.cloud/api
+  ✅ Dashboard at ssd.cloud/dashboard
+  ✅ Backups enabled
+  ✅ Monitoring active
+
+STEP 5: VERIFY DEPLOYMENT (1 min)
+──────────────────────────────────
+bash verify-deployment.sh
+
+You should see:
+  ✅ OpenClaw Gateway: HEALTHY
+  ✅ Quantum API: RESPONDING
+  ✅ PostgreSQL: CONNECTED
+  ✅ N8n: ACTIVE
+  ✅ Blog: LIVE
+  ✅ SSL Certificates: VALID
+  ✅ Backups: SCHEDULED
+  ✅ Monitoring: ENABLED
+
+STEP 6: LOGIN & EXPLORE (Optional)
+──────────────────────────────────
+1. Go to https://ssd.cloud/dashboard
+2. Login with default credentials (see DEPLOYMENT_SUMMARY.md)
+3. View system health and metrics
+4. Add first client using onboard-client.sh
+
+WHAT'S NEXT?
+────────────
+1. Read DEPLOYMENT_SUMMARY.md for system overview
+2. Onboard first client: bash onboard-client.sh
+3. Configure billing in admin dashboard
+4. Monitor infrastructure: See monitoring.md
+
+TROUBLESHOOTING
+───────────────
+If setup.sh fails:
+  - Check AWS credentials in .env
+  - Verify AWS account has EC2, RDS, S3, CloudFront permissions
+  - Check internet connectivity
+
+If deploy-all.sh fails:
+  - Check setup.sh completed successfully
+  - Review deploy.log for error messages
+  - Ensure no previous partial deployments
+
+If verify-deployment.sh shows warnings:
+  - Wait 2-3 minutes (services may still be starting)
+  - Check AWS CloudWatch for service logs
+  - Review SECURITY.md for firewall rules
+
+CONTACT
+───────
+support@sunstatedigital.com.au
+
+========================================================
+Status: PRODUCTION READY | Deploy with confidence 🚀
+========================================================

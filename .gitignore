@@ -1,0 +1,104 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build
+dist/
+build/
+*.o
+*.a
+*.so
+*.out
+
+# Logs
+*.log
+logs/
+*.log.*
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+coverage/
+.nyc_output/
+htmlcov/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+crash.log
+crash.*.log
+terraform.log
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# AWS
+.aws/
+*.pem
+*.key
+credentials
+
+# Kubernetes
+kubeconfig*
+*.kubeconfig
+.kube/
+
+# Secrets
+secrets/
+.secrets/
+*.secret
+*.key
+private_key*
+
+# Certs
+certs/
+*.crt
+*.csr
+
+# Backups
+*.bak
+*.backup
+*.tar.gz
+*.zip
+
+# Database
+*.sql.dump
+*.db.dump
+pg_dump*
+
+# Temporary
+tmp/
+temp/
+.tmp/
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
