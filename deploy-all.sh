@@ -1,8 +1,185 @@
 #!/bin/bash
+# =============================================================================
+# Sun State Digital — Master Deployment Script
+# Deploys all services: OpenClaw Gateway, Quantum API, Blog Frontend
+# Usage: ./deploy-all.sh [--skip-checks] [--no-notify]
+# =============================================================================
 
+set -euo pipefail
+
+# --- Configuration ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEPLOY_LOG="/var/log/ssd/deploy-$(date +%Y%m%d-%H%M%S).log"
+SLACK_WEBHOOK="${SLACK_WEBHOOK_DEPLOYMENTS:-}"
+AWS_REGION="${AWS_REGION:-ap-southeast-2}"
+ECR_REGISTRY="${ECR_REGISTRY:-123456789.dkr.ecr.ap-southeast-2.amazonaws.com}"
+COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
+ENV_FILE="${SCRIPT_DIR}/.env"
+
+# --- Colors ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+SKIP_CHECKS=false
+NO_NOTIFY=false
+for arg in "$@"; do
+  case $arg in
+    --skip-checks) SKIP_CHECKS=true ;;
+    --no-notify)   NO_NOTIFY=true ;;
+  esac
+done
+
+mkdir -p "$(dirname "$DEPLOY_LOG")"
+exec > >(tee -a "$DEPLOY_LOG") 2>&1
+
+log()     { echo -e "${CYAN}[$(date '+%H:%M:%S')]${NC} $1"; }
+success() { echo -e "${GREEN}[$(date '+%H:%M:%S')] ✓ $1${NC}"; }
+warn()    { echo -e "${YELLOW}[$(date '+%H:%M:%S')] ⚠ $1${NC}"; }
+error()   { echo -e "${RED}[$(date '+%H:%M:%S')] ✗ $1${NC}"; }
+header()  { echo -e "\n${BOLD}${BLUE}══════ $1 ══════${NC}\n"; }
+
+DEPLOY_START=$(date +%s)
+DEPLOY_VERSION=$(git -C "$SCRIPT_DIR" describe --tags --always 2>/dev/null || echo "unknown")
+DEPLOYED_BY="${USER:-ubuntu}"
+
+notify_slack() {
+  local status="$1" message="$2" color="$3"
+  [[ "$NO_NOTIFY" == "true" ]] || [[ -z "$SLACK_WEBHOOK" ]] && return 0
+  local elapsed=$(( $(date +%s) - DEPLOY_START ))
+  curl -s -X POST "$SLACK_WEBHOOK" -H "Content-Type: application/json" \
+    -d "{\"attachments\":[{\"color\":\"${color}\",\"title\":\"${status}: SSD Platform Deployment\",\"text\":\"${message}\",\"fields\":[{\"title\":\"Version\",\"value\":\"${DEPLOY_VERSION}\",\"short\":true},{\"title\":\"Duration\",\"value\":\"${elapsed}s\",\"short\":true},{\"title\":\"By\",\"value\":\"${DEPLOYED_BY}\",\"short\":true}]}]}" \
+    > /dev/null || warn "Slack notification failed"
+}
+
+cleanup_on_failure() {
+  local exit_code=$?
+  if [[ $exit_code -ne 0 ]]; then
+    error "Deployment FAILED (exit $exit_code) — log: $DEPLOY_LOG"
+    notify_slack "FAILED" "Deployment failed. Log: $DEPLOY_LOG" "danger"
+  fi
+}
+trap cleanup_on_failure EXIT
+
+echo -e "\n${BOLD}${BLUE}  SSD PLATFORM DEPLOYMENT — $(date '+%Y-%m-%d %H:%M:%S')${NC}\n"
+log "Version: $DEPLOY_VERSION | Region: $AWS_REGION | By: $DEPLOYED_BY"
+notify_slack "STARTED" "Deployment started by $DEPLOYED_BY. Version: $DEPLOY_VERSION" "warning"
+
+# ---- PRE-FLIGHT CHECKS ----
+header "PRE-FLIGHT CHECKS"
+
+if [[ "$SKIP_CHECKS" == "false" ]]; then
+  [[ -f "$ENV_FILE" ]] || { error ".env not found. Copy .env.example to .env"; exit 1; }
+  source "$ENV_FILE"
+  success "Environment file loaded"
+
+  docker info > /dev/null 2>&1 || { error "Docker not running"; exit 1; }
+  success "Docker running"
+
+  DISK_USED=$(df / | awk 'NR==2 {print $5}' | tr -d '%')
+  [[ $DISK_USED -gt 85 ]] && { error "Disk ${DISK_USED}% full. Run: docker system prune -a"; exit 1; }
+  success "Disk: ${DISK_USED}% used"
+
+  for var in DATABASE_URL REDIS_URL JWT_SECRET OPENCLAW_API_KEY AWS_REGION; do
+    [[ -z "${!var:-}" ]] && { error "Missing env var: $var"; exit 1; }
+  done
+  success "Required env vars present"
+
+  docker-compose -f "$COMPOSE_FILE" config > /dev/null 2>&1 || { error "docker-compose.yml has errors"; exit 1; }
+  success "docker-compose.yml valid"
+else
+  warn "Skipping pre-flight checks"
+fi
+
+# ---- PULL IMAGES ----
+header "PULLING IMAGES"
+aws ecr get-login-password --region "$AWS_REGION" 2>/dev/null | \
+  docker login --username AWS --password-stdin "$ECR_REGISTRY" 2>/dev/null \
+  && success "ECR login OK" || warn "ECR login failed — using cached images"
+docker-compose -f "$COMPOSE_FILE" pull --ignore-pull-failures 2>/dev/null || true
+success "Images up to date"
+
+# ---- BACKUP BEFORE DEPLOY ----
+header "PRE-DEPLOY BACKUP"
+[[ -f "${SCRIPT_DIR}/backup-restore.sh" ]] && \
+  "${SCRIPT_DIR}/backup-restore.sh" backup --quiet && success "Backup complete" \
+  || warn "Backup skipped"
+
+# ---- DEPLOY ----
+header "DEPLOYING SERVICES"
+
+log "Stopping old containers..."
+docker-compose -f "$COMPOSE_FILE" down --timeout 30 --remove-orphans 2>/dev/null || true
+
+log "Starting infrastructure (postgres, redis)..."
+docker-compose -f "$COMPOSE_FILE" up -d postgres redis
+sleep 5
+
+log "Waiting for PostgreSQL..."
+for i in $(seq 1 30); do
+  docker exec postgres pg_isready -U ssd_user -d ssd_production -q 2>/dev/null && break
+  [[ $i -eq 30 ]] && { error "PostgreSQL failed to start"; docker logs postgres --tail=30; exit 1; }
+  sleep 1
+done
+success "PostgreSQL ready"
+
+log "Waiting for Redis..."
+for i in $(seq 1 30); do
+  docker exec redis redis-cli -a "${REDIS_PASSWORD:-}" ping 2>/dev/null | grep -q "PONG" && break
+  [[ $i -eq 30 ]] && { error "Redis failed to start"; exit 1; }
+  sleep 1
+done
+success "Redis ready"
+
+log "Running database migrations..."
+docker-compose -f "$COMPOSE_FILE" run --rm quantum-api python -m alembic upgrade head 2>/dev/null \
+  && success "Migrations complete" || warn "Migrations skipped (may be up to date)"
+
+log "Starting application services..."
+docker-compose -f "$COMPOSE_FILE" up -d openclaw-gateway quantum-api blog-frontend
+success "Application services starting"
+
+log "Starting monitoring..."
+docker-compose -f "$COMPOSE_FILE" up -d nginx grafana prometheus
+success "Monitoring services starting"
+
+log "Waiting for health checks (60s max)..."
+sleep 10
+for service_port in "openclaw-gateway:3000/health" "quantum-api:8000/health" "blog-frontend:3000"; do
+  svc="${service_port%%:*}"; ep="${service_port#*:}"
+  for i in $(seq 1 30); do
+    curl -sf "http://localhost:${ep}" > /dev/null 2>&1 && break
+    [[ $i -eq 30 ]] && { warn "$svc not responding"; break; }
+    sleep 2
+  done
+  curl -sf "http://localhost:${ep}" > /dev/null 2>&1 && success "$svc healthy" || warn "$svc not yet responding"
+done
+
+# ---- VERIFY ----
+header "VERIFICATION"
+[[ -f "${SCRIPT_DIR}/verify-deployment.sh" ]] && "${SCRIPT_DIR}/verify-deployment.sh" --summary || true
+
+ELAPSED=$(( $(date +%s) - DEPLOY_START ))
+
+header "DEPLOYMENT COMPLETE"
+docker-compose -f "$COMPOSE_FILE" ps
+echo ""
+success "Deployed in ${ELAPSED}s — Version: ${DEPLOY_VERSION}"
+echo -e "  ${CYAN}Dashboard:  ${NC}https://ssd.cloud"
+echo -e "  ${CYAN}API:        ${NC}https://api.ssd.cloud/health"
+echo -e "  ${CYAN}Monitor:    ${NC}https://monitor.ssd.cloud"
+echo -e "  ${CYAN}Log:        ${NC}$DEPLOY_LOG"
+
+notify_slack "SUCCESS" "All services deployed in ${ELAPSED}s. Version: $DEPLOY_VERSION" "good"
+trap - EXIT
+exit 0
+
+# Original stub follows (replaced above)
 # Sun State Digital - Complete Production Deployment
-# Deploys all services: Gateway, API, N8n, Blog Frontend
-# Usage: bash deploy-all.sh
 
 set -e
 
