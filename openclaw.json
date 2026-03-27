@@ -1,0 +1,372 @@
+{
+  "_metadata": {
+    "service": "OpenClaw Gateway",
+    "version": "2.1.4",
+    "description": "API Gateway configuration for Sun State Digital platform",
+    "environment": "production",
+    "last_updated": "2026-03-18"
+  },
+  "server": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "protocol": "http",
+    "trustProxy": true,
+    "requestTimeout": 30000,
+    "maxBodySize": "10mb"
+  },
+  "routes": {
+    "health": {
+      "path": "/health",
+      "method": "GET",
+      "auth": false,
+      "handler": "health_check",
+      "response": {"status": "ok", "version": "2.1.4", "uptime": "dynamic"}
+    },
+    "auth": {
+      "login": {
+        "path": "/api/v1/auth/login",
+        "method": "POST",
+        "auth": false,
+        "rateLimit": "login"
+      },
+      "refresh": {
+        "path": "/api/v1/auth/refresh",
+        "method": "POST",
+        "auth": "bearer"
+      },
+      "logout": {
+        "path": "/api/v1/auth/logout",
+        "method": "POST",
+        "auth": "bearer"
+      }
+    },
+    "clients": {
+      "list": {
+        "path": "/api/v1/clients",
+        "method": "GET",
+        "auth": "bearer",
+        "roles": ["admin", "owner"]
+      },
+      "create": {
+        "path": "/api/v1/clients",
+        "method": "POST",
+        "auth": "bearer",
+        "roles": ["admin", "owner"],
+        "upstream": null
+      },
+      "get": {
+        "path": "/api/v1/clients/:id",
+        "method": "GET",
+        "auth": "bearer",
+        "roles": ["admin", "owner", "client"]
+      },
+      "update": {
+        "path": "/api/v1/clients/:id",
+        "method": "PUT",
+        "auth": "bearer",
+        "roles": ["admin", "owner"]
+      },
+      "delete": {
+        "path": "/api/v1/clients/:id",
+        "method": "DELETE",
+        "auth": "bearer",
+        "roles": ["owner"]
+      }
+    },
+    "workflows": {
+      "list": {
+        "path": "/api/v1/workflows",
+        "method": "GET",
+        "auth": "api_key",
+        "upstream": "quantum-api:8000/api/v1/workflows"
+      },
+      "run": {
+        "path": "/api/v1/workflows/run",
+        "method": "POST",
+        "auth": "api_key",
+        "upstream": "quantum-api:8000/api/v1/workflows/run",
+        "timeout": 60000
+      },
+      "status": {
+        "path": "/api/v1/workflows/:id/status",
+        "method": "GET",
+        "auth": "api_key",
+        "upstream": "quantum-api:8000/api/v1/workflows/:id/status"
+      }
+    },
+    "leads": {
+      "qualify": {
+        "path": "/api/v1/leads/qualify",
+        "method": "POST",
+        "auth": "api_key",
+        "upstream": "quantum-api:8000/api/v1/leads/qualify",
+        "timeout": 30000
+      },
+      "enrich": {
+        "path": "/api/v1/leads/enrich",
+        "method": "POST",
+        "auth": "api_key",
+        "upstream": "quantum-api:8000/api/v1/leads/enrich"
+      },
+      "score": {
+        "path": "/api/v1/leads/score",
+        "method": "POST",
+        "auth": "api_key",
+        "upstream": "quantum-api:8000/api/v1/leads/score"
+      }
+    },
+    "analytics": {
+      "dashboard": {
+        "path": "/api/v1/analytics",
+        "method": "GET",
+        "auth": "bearer",
+        "upstream": "quantum-api:8000/api/v1/analytics"
+      }
+    }
+  },
+  "webhooks": {
+    "google": {
+      "path": "/webhooks/google",
+      "method": "POST",
+      "auth": "oauth_verify",
+      "forward_to": "quantum-api:8000/api/v1/webhooks/google",
+      "verify": {
+        "type": "google_signature",
+        "header": "X-Goog-Signature"
+      },
+      "events": ["lead_form_submission", "contact_form"]
+    },
+    "meta": {
+      "path": "/webhooks/meta",
+      "method": ["GET", "POST"],
+      "auth": "meta_verify",
+      "forward_to": "quantum-api:8000/api/v1/webhooks/meta",
+      "verify": {
+        "type": "sha256_signature",
+        "header": "X-Hub-Signature-256",
+        "secret_env": "META_WEBHOOK_VERIFY_TOKEN"
+      },
+      "events": ["leadgen", "messages", "page_post"]
+    },
+    "meta_verify": {
+      "path": "/webhooks/meta",
+      "method": "GET",
+      "auth": false,
+      "handler": "meta_webhook_verification",
+      "note": "Facebook webhook verification challenge"
+    },
+    "ghl": {
+      "path": "/webhooks/ghl",
+      "method": "POST",
+      "auth": "ghl_verify",
+      "forward_to": "quantum-api:8000/api/v1/webhooks/ghl",
+      "verify": {
+        "type": "hmac_sha256",
+        "header": "X-GHL-Signature",
+        "secret_env": "GHL_WEBHOOK_SECRET"
+      },
+      "events": [
+        "contact.created",
+        "contact.updated",
+        "opportunity.created",
+        "opportunity.statusChanged",
+        "form.submitted"
+      ]
+    },
+    "n8n": {
+      "path": "/webhooks/n8n",
+      "method": "POST",
+      "auth": "api_key",
+      "forward_to": "quantum-api:8000/api/v1/webhooks/n8n",
+      "note": "n8n workflow trigger endpoint"
+    },
+    "stripe": {
+      "path": "/webhooks/stripe",
+      "method": "POST",
+      "auth": "stripe_verify",
+      "forward_to": null,
+      "handler": "stripe_payment_handler",
+      "verify": {
+        "type": "stripe_signature",
+        "header": "Stripe-Signature",
+        "secret_env": "STRIPE_WEBHOOK_SECRET"
+      },
+      "events": [
+        "payment_intent.succeeded",
+        "invoice.payment_succeeded",
+        "customer.subscription.created",
+        "customer.subscription.deleted"
+      ]
+    },
+    "client_specific": {
+      "path": "/webhooks/client/:client_id",
+      "method": "POST",
+      "auth": "client_webhook_verify",
+      "forward_to": "quantum-api:8000/api/v1/webhooks/client/:client_id",
+      "note": "Per-client webhook endpoint, auth validated against client record"
+    }
+  },
+  "middleware": {
+    "cors": {
+      "enabled": true,
+      "origins": [
+        "https://ssd.cloud",
+        "https://api.ssd.cloud",
+        "https://quantum.ssd.cloud",
+        "https://blog.ssd.cloud",
+        "https://monitor.ssd.cloud"
+      ],
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "headers": ["Authorization", "Content-Type", "X-API-Key", "X-Client-ID"],
+      "credentials": true,
+      "max_age": 86400
+    },
+    "authentication": {
+      "jwt": {
+        "enabled": true,
+        "secret_env": "JWT_SECRET",
+        "algorithm": "HS256",
+        "expiry": "1h",
+        "refresh_expiry": "30d",
+        "issuer": "ssd.cloud",
+        "audience": "ssd-platform"
+      },
+      "api_key": {
+        "enabled": true,
+        "header": "X-API-Key",
+        "also_accept_query": false,
+        "prefix": "sk-",
+        "hash_algorithm": "sha256"
+      }
+    },
+    "rate_limiting": {
+      "default": {
+        "window_ms": 60000,
+        "max_requests": 100,
+        "message": "Too many requests, please try again later"
+      },
+      "api": {
+        "window_ms": 60000,
+        "max_requests": 100
+      },
+      "login": {
+        "window_ms": 60000,
+        "max_requests": 10,
+        "block_on_fail": true,
+        "block_duration_ms": 900000
+      },
+      "webhooks": {
+        "window_ms": 60000,
+        "max_requests": 30
+      },
+      "public": {
+        "window_ms": 60000,
+        "max_requests": 200
+      }
+    },
+    "logging": {
+      "format": "json",
+      "level": "info",
+      "include_request_body": false,
+      "include_response_body": false,
+      "sanitize_fields": ["password", "secret", "token", "api_key", "authorization"]
+    },
+    "security": {
+      "helmet": true,
+      "hsts": {
+        "max_age": 31536000,
+        "include_subdomains": true,
+        "preload": true
+      },
+      "x_frame_options": "SAMEORIGIN",
+      "content_security_policy": true,
+      "x_content_type_options": true
+    },
+    "compression": {
+      "enabled": true,
+      "threshold": 1024
+    }
+  },
+  "integrations": {
+    "google": {
+      "enabled": true,
+      "services": ["ads", "analytics", "workspace", "maps"],
+      "auth_method": "service_account",
+      "credentials_env": "GOOGLE_SERVICE_ACCOUNT_KEY_FILE",
+      "scopes": [
+        "https://www.googleapis.com/auth/adwords",
+        "https://www.googleapis.com/auth/analytics.readonly",
+        "https://www.googleapis.com/auth/spreadsheets"
+      ]
+    },
+    "meta": {
+      "enabled": true,
+      "api_version": "v18.0",
+      "base_url": "https://graph.facebook.com/v18.0",
+      "credentials_env": "META_APP_SECRET",
+      "token_env": "META_ACCESS_TOKEN",
+      "features": ["lead_ads", "custom_audiences", "conversions_api"]
+    },
+    "ghl": {
+      "enabled": true,
+      "api_base": "https://rest.gohighlevel.com/v1",
+      "credentials_env": "GHL_API_KEY",
+      "features": ["contacts", "pipelines", "calendars", "campaigns", "webhooks"]
+    },
+    "slack": {
+      "enabled": true,
+      "bot_token_env": "SLACK_BOT_TOKEN",
+      "signing_secret_env": "SLACK_SIGNING_SECRET",
+      "features": ["messages", "notifications", "slash_commands"]
+    },
+    "n8n": {
+      "enabled": true,
+      "base_url": "http://n8n:5678",
+      "api_key_env": "N8N_API_KEY",
+      "features": ["trigger_workflow", "get_execution", "list_workflows"]
+    },
+    "openai": {
+      "enabled": true,
+      "api_key_env": "OPENAI_API_KEY",
+      "model": "gpt-4-turbo-preview",
+      "max_tokens": 4096,
+      "temperature": 0.7,
+      "timeout": 60000
+    },
+    "anthropic": {
+      "enabled": true,
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "model": "claude-3-sonnet-20240229",
+      "max_tokens": 4096,
+      "timeout": 60000
+    }
+  },
+  "api_key_management": {
+    "format": "sk-{service}-{random32hex}",
+    "rotation_days": 90,
+    "permissions": {
+      "read": ["GET"],
+      "write": ["GET", "POST", "PUT"],
+      "admin": ["GET", "POST", "PUT", "DELETE"]
+    },
+    "storage": "postgresql",
+    "cache": "redis",
+    "cache_ttl": 300
+  },
+  "database": {
+    "pool_min": 2,
+    "pool_max": 10,
+    "pool_idle_timeout": 30000,
+    "connection_timeout": 5000,
+    "query_timeout": 30000,
+    "ssl": true
+  },
+  "redis": {
+    "key_prefix": "openclaw:",
+    "session_ttl": 86400,
+    "cache_ttl": 300,
+    "ratelimit_ttl": 60,
+    "retry_attempts": 3,
+    "retry_delay": 1000
+  }
+}

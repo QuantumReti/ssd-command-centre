@@ -1,0 +1,336 @@
+{
+  "_metadata": {
+    "description": "Sun State Digital — Production System Configuration Snapshot",
+    "generated": "2026-03-18T02:00:00Z",
+    "environment": "production",
+    "version": "2.0.0",
+    "server_ip": "13.237.5.80",
+    "aws_region": "ap-southeast-2"
+  },
+  "services": {
+    "openclaw_gateway": {
+      "container_name": "openclaw-gateway",
+      "image": "123456789.dkr.ecr.ap-southeast-2.amazonaws.com/ssd/openclaw-gateway:2.1.4",
+      "runtime": "node",
+      "node_version": "20.11.0",
+      "framework": "express",
+      "framework_version": "4.18.2",
+      "port": 3000,
+      "internal_port": 3000,
+      "health_check": {
+        "endpoint": "/health",
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3,
+        "start_period": "15s"
+      },
+      "resources": {
+        "memory_limit": "512m",
+        "memory_reserve": "256m",
+        "cpu_limit": 0.5
+      },
+      "restart_policy": "unless-stopped",
+      "environment": {
+        "NODE_ENV": "production",
+        "PORT": "3000",
+        "DATABASE_URL": "[REDACTED - see AWS Secrets Manager: ssd/prod/db-credentials]",
+        "REDIS_URL": "[REDACTED - see AWS Secrets Manager: ssd/prod/redis-auth]",
+        "JWT_SECRET": "[REDACTED - see AWS Secrets Manager: ssd/prod/jwt-secret]",
+        "OPENCLAW_API_KEY": "[REDACTED]",
+        "ENCRYPTION_KEY": "[REDACTED]",
+        "AWS_REGION": "ap-southeast-2",
+        "AWS_S3_BUCKET": "ssd-prod-client-data",
+        "SMTP_HOST": "email-smtp.ap-southeast-2.amazonaws.com",
+        "SMTP_PORT": "587"
+      },
+      "volumes": [],
+      "networks": ["ssd-network"],
+      "labels": {
+        "traefik.enable": "false",
+        "com.ssd.service": "openclaw-gateway",
+        "com.ssd.version": "2.1.4"
+      }
+    },
+    "quantum_api": {
+      "container_name": "quantum-api",
+      "image": "123456789.dkr.ecr.ap-southeast-2.amazonaws.com/ssd/quantum-api:1.8.2",
+      "runtime": "python",
+      "python_version": "3.11.7",
+      "framework": "fastapi",
+      "framework_version": "0.104.1",
+      "asgi_server": "uvicorn",
+      "asgi_version": "0.24.0",
+      "workers": 4,
+      "port": 8000,
+      "internal_port": 8000,
+      "health_check": {
+        "endpoint": "/health",
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3
+      },
+      "resources": {
+        "memory_limit": "768m",
+        "memory_reserve": "384m",
+        "cpu_limit": 0.75
+      },
+      "restart_policy": "unless-stopped",
+      "environment": {
+        "PYTHON_ENV": "production",
+        "PORT": "8000",
+        "WORKERS": "4",
+        "DATABASE_URL": "[REDACTED]",
+        "REDIS_URL": "[REDACTED]",
+        "OPENAI_API_KEY": "[REDACTED]",
+        "ANTHROPIC_API_KEY": "[REDACTED]",
+        "OPENCLAW_API_KEY": "[REDACTED]",
+        "AWS_REGION": "ap-southeast-2"
+      },
+      "networks": ["ssd-network"]
+    },
+    "blog_frontend": {
+      "container_name": "blog-frontend",
+      "image": "123456789.dkr.ecr.ap-southeast-2.amazonaws.com/ssd/blog-frontend:1.2.0",
+      "runtime": "node",
+      "node_version": "20.11.0",
+      "framework": "nextjs",
+      "framework_version": "14.0.3",
+      "output": "standalone",
+      "port": 3000,
+      "host_port": 3001,
+      "health_check": {
+        "endpoint": "/",
+        "interval": "60s",
+        "timeout": "10s",
+        "retries": 3
+      },
+      "resources": {
+        "memory_limit": "256m",
+        "memory_reserve": "128m",
+        "cpu_limit": 0.25
+      },
+      "restart_policy": "unless-stopped",
+      "environment": {
+        "NODE_ENV": "production",
+        "NEXT_PUBLIC_API_URL": "https://api.ssd.cloud",
+        "NEXT_PUBLIC_SITE_URL": "https://blog.ssd.cloud"
+      },
+      "networks": ["ssd-network"]
+    },
+    "postgres": {
+      "container_name": "postgres",
+      "image": "postgres:15.5-alpine",
+      "version": "15.5",
+      "port": 5432,
+      "exposed": false,
+      "health_check": {
+        "command": "pg_isready -U ssd_user -d ssd_production",
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 5
+      },
+      "resources": {
+        "memory_limit": "512m",
+        "memory_reserve": "256m",
+        "cpu_limit": 0.5
+      },
+      "restart_policy": "unless-stopped",
+      "volumes": [
+        "ssd-postgres-data:/var/lib/postgresql/data"
+      ],
+      "config_overrides": {
+        "max_connections": 100,
+        "shared_buffers": "128MB",
+        "effective_cache_size": "512MB",
+        "work_mem": "4MB",
+        "checkpoint_completion_target": 0.9,
+        "wal_buffers": "16MB"
+      },
+      "databases": [
+        "ssd_production",
+        "ssd_quantum",
+        "quantum_buyers"
+      ],
+      "networks": ["ssd-network"]
+    },
+    "redis": {
+      "container_name": "redis",
+      "image": "redis:7.2.3-alpine",
+      "version": "7.2.3",
+      "port": 6379,
+      "exposed": false,
+      "health_check": {
+        "command": "redis-cli ping",
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3
+      },
+      "resources": {
+        "memory_limit": "256m",
+        "memory_reserve": "128m",
+        "cpu_limit": 0.25
+      },
+      "restart_policy": "unless-stopped",
+      "volumes": [
+        "ssd-redis-data:/data"
+      ],
+      "config": {
+        "maxmemory": "200mb",
+        "maxmemory_policy": "allkeys-lru",
+        "appendonly": true,
+        "appendfsync": "everysec",
+        "requirepass": "[REDACTED]"
+      },
+      "networks": ["ssd-network"]
+    },
+    "nginx": {
+      "container_name": "nginx",
+      "image": "nginx:1.25.3-alpine",
+      "version": "1.25.3",
+      "ports": [80, 443],
+      "ssl_provider": "letsencrypt",
+      "ssl_domain": "*.ssd.cloud",
+      "virtual_hosts": [
+        {"host": "ssd.cloud", "upstream": "openclaw-gateway:3000"},
+        {"host": "api.ssd.cloud", "upstream": "openclaw-gateway:3000"},
+        {"host": "openclaw.ssd.cloud", "upstream": "openclaw-gateway:3000"},
+        {"host": "quantum.ssd.cloud", "upstream": "quantum-api:8000"},
+        {"host": "blog.ssd.cloud", "upstream": "blog-frontend:3001"},
+        {"host": "monitor.ssd.cloud", "upstream": "grafana:3000"}
+      ],
+      "features": [
+        "ssl_termination",
+        "gzip_compression",
+        "rate_limiting",
+        "security_headers",
+        "websocket_proxy",
+        "http2"
+      ],
+      "restart_policy": "unless-stopped",
+      "volumes": [
+        "./nginx.conf:/etc/nginx/nginx.conf:ro",
+        "/etc/letsencrypt:/etc/letsencrypt:ro",
+        "ssd-nginx-logs:/var/log/nginx"
+      ],
+      "networks": ["ssd-network"]
+    },
+    "grafana": {
+      "container_name": "grafana",
+      "image": "grafana/grafana:10.2.2",
+      "version": "10.2.2",
+      "port": 3000,
+      "host_port": 3002,
+      "exposed_via_nginx": "monitor.ssd.cloud",
+      "admin_user": "admin",
+      "admin_password": "[REDACTED - see .env GRAFANA_ADMIN_PASSWORD]",
+      "resources": {
+        "memory_limit": "256m",
+        "cpu_limit": 0.25
+      },
+      "restart_policy": "unless-stopped",
+      "volumes": ["ssd-grafana-data:/var/lib/grafana"],
+      "networks": ["ssd-network", "monitoring-network"]
+    },
+    "prometheus": {
+      "container_name": "prometheus",
+      "image": "prom/prometheus:v2.47.2",
+      "version": "2.47.2",
+      "port": 9090,
+      "exposed": false,
+      "scrape_interval": "15s",
+      "retention": "15d",
+      "resources": {
+        "memory_limit": "256m",
+        "cpu_limit": 0.25
+      },
+      "restart_policy": "unless-stopped",
+      "volumes": ["ssd-prometheus-data:/prometheus"],
+      "networks": ["ssd-network", "monitoring-network"],
+      "scrape_targets": [
+        "openclaw-gateway:3000",
+        "quantum-api:8000",
+        "postgres:5432",
+        "redis:6379",
+        "nginx:80"
+      ]
+    }
+  },
+  "networks": {
+    "ssd-network": {
+      "driver": "bridge",
+      "internal": false
+    },
+    "monitoring-network": {
+      "driver": "bridge",
+      "internal": true
+    }
+  },
+  "volumes": {
+    "ssd-postgres-data": {"driver": "local"},
+    "ssd-redis-data": {"driver": "local"},
+    "ssd-grafana-data": {"driver": "local"},
+    "ssd-prometheus-data": {"driver": "local"},
+    "ssd-nginx-logs": {"driver": "local"}
+  },
+  "aws": {
+    "region_primary": "ap-southeast-2",
+    "region_secondary": "ap-southeast-1",
+    "region_tertiary": "us-east-1",
+    "ecs_cluster": "ssd-prod-cluster",
+    "ecr_registry": "123456789.dkr.ecr.ap-southeast-2.amazonaws.com",
+    "s3_buckets": [
+      "ssd-prod-client-data",
+      "ssd-prod-backups",
+      "ssd-prod-static",
+      "ssd-prod-logs"
+    ],
+    "rds_instance": "ssd-prod-db",
+    "elasticache_cluster": "ssd-prod-redis",
+    "alb": "ssd-prod-alb",
+    "cloudfront": "ssd-prod-cdn",
+    "vpc": "ssd-prod-vpc",
+    "hosted_zone": "ssd.cloud"
+  },
+  "ssl": {
+    "provider": "letsencrypt",
+    "domains": ["ssd.cloud", "*.ssd.cloud"],
+    "algorithm": "RSA-4096",
+    "auto_renewal": true,
+    "cert_path": "/etc/letsencrypt/live/ssd.cloud/fullchain.pem",
+    "key_path": "/etc/letsencrypt/live/ssd.cloud/privkey.pem"
+  },
+  "monitoring": {
+    "uptime_target": "99.99%",
+    "alert_channels": ["slack", "email"],
+    "alert_thresholds": {
+      "cpu_warning": 80,
+      "cpu_critical": 95,
+      "memory_warning": 85,
+      "memory_critical": 95,
+      "disk_warning": 80,
+      "disk_critical": 90,
+      "error_rate_warning": 0.01,
+      "latency_warning_ms": 2000
+    }
+  },
+  "backup": {
+    "schedule": "0 2 * * *",
+    "retention_days": 30,
+    "s3_bucket": "ssd-prod-backups",
+    "include": ["postgresql", "redis", "nginx_config", "env_files"],
+    "encryption": "AES-256-CBC"
+  },
+  "clients": [
+    {
+      "id": "quantum-buyers",
+      "name": "Quantum Buyers Agents",
+      "contact": "Nick Esplin",
+      "phone": "+61427716756",
+      "tier": "growth",
+      "status": "active",
+      "onboarded": "2026-03-01",
+      "subdomain": "quantum.clients.ssd.cloud",
+      "s3_bucket": "ssd-client-quantum-buyers-data"
+    }
+  ]
+}
